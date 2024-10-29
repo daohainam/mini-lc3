@@ -13,5 +13,13 @@ public class LC3Machine: ILC3Machine
         Memory = new();
         MemoryControlUnit = new(Memory);
         CPU = new(MemoryControlUnit);
+
+        Memory.Reset();
+    }
+
+    public void Run(CancellationToken cancellationToken)
+    {
+        CPU.Boot();
+        CPU.Run(cancellationToken);
     }
 }

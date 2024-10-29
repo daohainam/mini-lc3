@@ -2,6 +2,8 @@
 
 public class CPU
 {
+    public const ushort DefaultPCAddress = 0x3000;
+
     public ArithmeticLogicUnit ALU { get; } 
     public ControlUnit ControlUnit { get; }
     public MemoryControlUnit MemoryControlUnit { get; }
@@ -15,7 +17,7 @@ public class CPU
 
     public void Boot()
     {
-        ControlUnit.PC = 0x3000;
+        ControlUnit.PC = DefaultPCAddress;
     }
 
     public void Run(CancellationToken cancellationToken)
