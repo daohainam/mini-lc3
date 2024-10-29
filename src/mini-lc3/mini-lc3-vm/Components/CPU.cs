@@ -12,4 +12,11 @@ public class CPU
         ControlUnit = new();
         MemoryControlUnit = memoryControlUnit;
     }
+
+    public void Fetch()
+    {
+        MemoryControlUnit.MAR = ControlUnit.PC++;
+        MemoryControlUnit.ReadSignal();
+        ControlUnit.IR = (ushort)MemoryControlUnit.MDR;
+    }
 }

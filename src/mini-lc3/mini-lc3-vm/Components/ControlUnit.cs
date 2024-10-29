@@ -9,6 +9,7 @@ namespace mini_lc3_vm.Components;
 public class ControlUnit
 {
     public ushort IR { get; set; }
+    public ushort PC { get; set; }
     public NZP NZP { get; }
 }
 
