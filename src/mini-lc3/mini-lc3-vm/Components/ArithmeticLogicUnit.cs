@@ -4,14 +4,54 @@ public class ArithmeticLogicUnit
 {
     public RegisterFile RegisterFile { get; } = new RegisterFile();
 }
-public struct RegisterFile
+public class RegisterFile
 {
-    public short R0 { get; set; } 
-    public short R1 { get; set; }
-    public short R2 { get; set; }
-    public short R3 { get; set; }
-    public short R4 { get; set; }
-    public short R5 { get; set; }
-    public short R6 { get; set; }
-    public short R7 { get; set; }
+    private readonly short[] _registers = new short[8];
+
+    public short R0
+    {
+        get => _registers[0];
+        set => _registers[0] = value;
+    }
+    public short R1
+    {
+        get => _registers[1];
+        set => _registers[1] = value;
+    }
+    public short R2
+    {
+        get => _registers[2];
+        set => _registers[2] = value;
+    }
+    public short R3
+    {
+        get => _registers[3];
+        set => _registers[3] = value;
+    }
+    public short R4
+    {
+        get => _registers[4];
+        set => _registers[4] = value;
+    }
+    public short R5
+    {
+        get => _registers[5];
+        set => _registers[5] = value;
+    }
+    public short R6
+    {
+        get => _registers[6];
+        set => _registers[6] = value;
+    }
+    public short R7
+    {
+        get => _registers[7];
+        set => _registers[7] = value;
+    }
+
+    public short this[int index]
+    {
+        get => _registers[index];
+        set => _registers[index] = value;
+    }
 }
