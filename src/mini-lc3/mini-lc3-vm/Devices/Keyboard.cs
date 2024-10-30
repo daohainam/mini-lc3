@@ -12,20 +12,26 @@ namespace mini_lc3_vm.Devices
     {
         public const ushort KBSR_ADDRESS = 0xFE00;
         public const ushort KBDR_ADDRESS = 0xFE02;
+        private readonly IKeyboardDevice keyBoard;
 
         public ushort KBDR { get; set; }
         public ushort KBSR { get; set; }
 
-        private CancellationTokenSource cancellationTokenSource { get; }
-        private CancellationToken cancellationToken { get; set; }
+        private CancellationTokenSource cancellationTokenSource;
+        private CancellationToken cancellationToken;
 
-        public Keyboard()
+        public Keyboard(IKeyboardDevice keyboardDevice)
         {
+            this.keyBoard = keyboardDevice;
+
             KBDR = 0;
             KBSR = 0;
 
             cancellationTokenSource = new CancellationTokenSource();
             cancellationToken = cancellationTokenSource.Token;
+        }
+        public Keyboard(): this(KeyboardDevice.Instance)
+        {
         }
 
         public void OnReadSignal(ushort address, out short value)
@@ -65,8 +71,7 @@ namespace mini_lc3_vm.Devices
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
-                    KBDR = (ushort)key.KeyChar;
+                    KBDR = keyBoard.ReadKey();
                     KBSR = 0x8000; // set the ready bit [15]
                 }
             }, cancellationToken);
