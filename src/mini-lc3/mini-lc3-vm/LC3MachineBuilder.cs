@@ -30,7 +30,16 @@ public class LC3MachineBuilder: ILC3MachineBuilder
         {
             builder.LoadProgram(args.First());
 
-            if (!args.Contains("--no-keyboard"))
+            bool noKeyboard = false;
+            for (int i = 1; i < args.Length; i++)
+            {
+                if (args[i] == "--no-keyboard")
+                {
+                    noKeyboard = true;
+                }
+            }
+
+            if (!noKeyboard)
             {
                 builder.UseKeyBoard();
             }
