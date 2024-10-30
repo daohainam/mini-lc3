@@ -9,7 +9,8 @@ namespace mini_lc3_vm.Components
 {
     public class Memory: IEnumerable<short>
     {
-        public const int MemorySize = 0x10000;
+        public const int IOPageSize = 0x200;
+        public const int MemorySize = 0x10000 - IOPageSize;
 
         private readonly short[] _memory = new short[MemorySize];
 
