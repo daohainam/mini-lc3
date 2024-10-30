@@ -1,5 +1,6 @@
 ﻿using mini_lc3_vm.Components;
 using mini_lc3_vm.Devices;
+using mini_lc3_vm.ProgramLoaders;
 
 namespace mini_lc3_vm;
 
@@ -38,15 +39,11 @@ public class LC3MachineBuilder: ILC3MachineBuilder
         return builder;
     }
 
-    private void LoadProgram(string objectFileName)
+    private void LoadProgram(string fileName)
     {
         try
         {
-            programCode = File.ReadAllBytes(objectFileName)
-                              .Select((b, i) => new { b, i })
-                              .GroupBy(x => x.i / 2)
-                              .Select(g => (short)(g.First().b | (g.Last().b << 8)))
-                              .ToArray();
+            programCode = LoaderFactory.GetLoader(fileName).LoadProgram();
         }
         catch (Exception ex)
         {
