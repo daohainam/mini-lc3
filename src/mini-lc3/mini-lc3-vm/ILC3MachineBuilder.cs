@@ -9,5 +9,6 @@ namespace mini_lc3_vm
     public interface ILC3MachineBuilder
     {
         ILC3Machine Build();
+        ILC3MachineBuilder UseKeyBoard();
     }
 }

@@ -32,6 +32,14 @@ namespace mini_lc3_vm.Components
 
         public void LoadProgram(short[] program, int address)
         {
+            ArgumentNullException.ThrowIfNull(program, nameof(program));
+            ArgumentOutOfRangeException.ThrowIfLessThan(address, 0, nameof(address));
+
+            if (program.Length == 0)
+            {
+                return;
+            }
+
             if (program.Length + address > MemorySize)
             {
                 throw new ArgumentException("Program is too large to fit in memory");
