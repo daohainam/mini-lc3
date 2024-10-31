@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace mini_lc3_vm.Devices
 {
-    public class Keyboard : IMappedMemory, IAttachable
+    public class LC3Keyboard : IMappedMemory, IAttachable
     {
         public const ushort KBSR_ADDRESS = 0xFE00;
         public const ushort KBDR_ADDRESS = 0xFE02;
@@ -21,7 +21,7 @@ namespace mini_lc3_vm.Devices
         private CancellationToken cancellationToken;
         private Task readTask = Task.CompletedTask;
 
-        public Keyboard(IKeyboardDevice keyboardDevice)
+        public LC3Keyboard(IKeyboardDevice keyboardDevice)
         {
             this.keyBoard = keyboardDevice;
 
@@ -31,7 +31,7 @@ namespace mini_lc3_vm.Devices
             cancellationTokenSource = new CancellationTokenSource();
             cancellationToken = cancellationTokenSource.Token;
         }
-        public Keyboard(): this(ConsoleDevice.Instance)
+        public LC3Keyboard(): this(ConsoleDevice.Instance)
         {
         }
 
@@ -77,7 +77,7 @@ namespace mini_lc3_vm.Devices
                 }
             }, cancellationToken);
 
-            machine.MemoryControlUnit.Map(MemoryRange.FromStartAndEnd(KBSR_ADDRESS, KBDR_ADDRESS), new Keyboard());
+            machine.MemoryControlUnit.Map(MemoryRange.FromStartAndEnd(KBSR_ADDRESS, KBDR_ADDRESS), new LC3Keyboard());
 
             IsAttached = true;
         }

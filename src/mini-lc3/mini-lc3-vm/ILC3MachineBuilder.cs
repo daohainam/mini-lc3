@@ -10,5 +10,6 @@ namespace mini_lc3_vm
     {
         ILC3Machine Build();
         ILC3MachineBuilder UseKeyBoard();
+        ILC3MachineBuilder UseMonitor();
     }
 }

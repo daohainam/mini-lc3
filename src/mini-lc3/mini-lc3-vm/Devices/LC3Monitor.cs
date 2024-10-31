@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace mini_lc3_vm.Devices
 {
-    public class Monitor : IMappedMemory, IAttachable
+    public class LC3Monitor : IMappedMemory, IAttachable
     {
         public const ushort DSR_ADDRESS = 0xFE04;
         public const ushort DDR_ADDRESS = 0xFE06;
@@ -22,7 +22,7 @@ namespace mini_lc3_vm.Devices
         private Task task = Task.CompletedTask;
         private AutoResetEvent autoResetEvent = new(false);
 
-        public Monitor(IMonitorDevice monitorDevice)
+        public LC3Monitor(IMonitorDevice monitorDevice)
         {
             this.monitor = monitorDevice;
 
@@ -32,7 +32,7 @@ namespace mini_lc3_vm.Devices
             cancellationTokenSource = new CancellationTokenSource();
             cancellationToken = cancellationTokenSource.Token;
         }
-        public Monitor(): this(ConsoleDevice.Instance)
+        public LC3Monitor(): this(ConsoleDevice.Instance)
         {
         }
 
@@ -79,7 +79,7 @@ namespace mini_lc3_vm.Devices
                 }
             }, cancellationToken);
 
-            machine.MemoryControlUnit.Map(MemoryRange.FromStartAndEnd(DSR_ADDRESS, DDR_ADDRESS), new Keyboard());
+            machine.MemoryControlUnit.Map(MemoryRange.FromStartAndEnd(DSR_ADDRESS, DDR_ADDRESS), new LC3Keyboard());
 
             IsAttached = true;
         }

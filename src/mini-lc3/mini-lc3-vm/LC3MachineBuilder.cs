@@ -8,13 +8,18 @@ public class LC3MachineBuilder: ILC3MachineBuilder
 {
     private short[] programCode = [];
     private bool useKeyboard = false;
+    private bool useMonitor = false;
 
     public ILC3Machine Build()
     {
         var machine = new LC3Machine();
         if (useKeyboard)
         {
-            machine.AttachDevice(new Keyboard());
+            machine.AttachDevice(new LC3Keyboard());
+        }
+        if (useMonitor)
+        {
+            machine.AttachDevice(new LC3Monitor());
         }
 
         machine.Memory.LoadProgram(programCode.Length == 0 ? Loop : programCode, CPU.DefaultPCAddress);
@@ -31,17 +36,26 @@ public class LC3MachineBuilder: ILC3MachineBuilder
             builder.LoadProgram(args.First());
 
             bool noKeyboard = false;
+            bool noMonitor = false;
             for (int i = 1; i < args.Length; i++)
             {
                 if (args[i] == "--no-keyboard")
                 {
                     noKeyboard = true;
                 }
+                else if (args[i] == "--no-monitor")
+                {
+                    noMonitor = true;
+                }
             }
 
             if (!noKeyboard)
             {
                 builder.UseKeyBoard();
+            }
+            if (!noMonitor)
+            {
+                builder.UseMonitor();
             }
         }
 
@@ -64,6 +78,12 @@ public class LC3MachineBuilder: ILC3MachineBuilder
     public ILC3MachineBuilder UseKeyBoard()
     {
         useKeyboard = true;
+        return this;
+    }
+
+    public ILC3MachineBuilder UseMonitor()
+    {
+        useMonitor = true;
         return this;
     }
 
