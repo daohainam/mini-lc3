@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace mini_lc3_vm
 {
-    internal interface ILC3Memory
+    public interface ILC3MemoryControlUnit
     {
         ushort MAR { get; set; }
         short MDR { get; set; }

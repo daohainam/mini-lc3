@@ -22,7 +22,7 @@ public class LC3MachineBuilder: ILC3MachineBuilder
             machine.AttachDevice(new LC3Monitor());
         }
 
-        machine.Memory.LoadProgram(programCode.Length == 0 ? Loop : programCode, CPU.DefaultPCAddress);
+        machine.Memory.LoadInstructions(programCode.Length == 0 ? Loop : programCode, CPU.DefaultPCAddress);
 
         return machine;
     }

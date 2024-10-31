@@ -5,6 +5,7 @@
     <RootNamespace>mini_lc3_vm</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<InternalsVisibleTo>mini-lc3-tests</InternalsVisibleTo>
   </PropertyGroup>
 
   <ItemGroup>

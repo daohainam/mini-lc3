@@ -1,6 +1,6 @@
 ﻿namespace mini_lc3_vm.Components;
 
-public class MemoryControlUnit: ILC3Memory, IMapableMemory
+public class MemoryControlUnit: ILC3MemoryControlUnit, IMapableMemory
 {
     private readonly Memory _memory;
     private readonly Dictionary<MemoryRange, IMappedMemory> _mappedDevices = [];
@@ -27,12 +27,9 @@ public class MemoryControlUnit: ILC3Memory, IMapableMemory
                     return;
                 }
             }
-        }
-        else
-        {
+
             MDR = 0; // no mapped device, return 0
         }
-
         MDR = _memory[MAR];
     }
     public void WriteSignal()

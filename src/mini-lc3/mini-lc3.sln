@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{CA0A
 		..\..\samples\character-count.hex = ..\..\samples\character-count.hex
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mini-lc3-tests", "mini-lc3-tests\mini-lc3-tests.csproj", "{325E4D1F-E805-44B1-898D-1F455D199692}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{4D14821B-AA50-490F-8CD0-22C297BEDCA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D14821B-AA50-490F-8CD0-22C297BEDCA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D14821B-AA50-490F-8CD0-22C297BEDCA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{325E4D1F-E805-44B1-898D-1F455D199692}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{325E4D1F-E805-44B1-898D-1F455D199692}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{325E4D1F-E805-44B1-898D-1F455D199692}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{325E4D1F-E805-44B1-898D-1F455D199692}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

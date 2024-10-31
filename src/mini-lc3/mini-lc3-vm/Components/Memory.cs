@@ -30,22 +30,22 @@ namespace mini_lc3_vm.Components
             set => _memory[index] = value;
         }
 
-        public void LoadProgram(short[] program, int address)
+        public void LoadInstructions(short[] instructions, int address = CPU.DefaultPCAddress)
         {
-            ArgumentNullException.ThrowIfNull(program, nameof(program));
+            ArgumentNullException.ThrowIfNull(instructions, nameof(instructions));
             ArgumentOutOfRangeException.ThrowIfLessThan(address, 0, nameof(address));
 
-            if (program.Length == 0)
+            if (instructions.Length == 0)
             {
                 return;
             }
 
-            if (program.Length + address > MemorySize)
+            if (instructions.Length + address > MemorySize)
             {
                 throw new ArgumentException("Program is too large to fit in memory");
             }
 
-            Array.Copy(program, 0, _memory, address, program.Length);
+            Array.Copy(instructions, 0, _memory, address, instructions.Length);
         }
 
         public void Reset()

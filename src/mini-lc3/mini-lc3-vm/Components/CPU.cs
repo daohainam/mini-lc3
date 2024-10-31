@@ -30,11 +30,11 @@ public class CPU
         }
     }
 
-    private Opcodes Decode() { 
+    public Opcodes Decode() { 
         return (Opcodes)(ControlUnit.IR >> 12); 
     }
 
-    private void Execute(Opcodes opcode)
+    public void Execute(Opcodes opcode)
     {
         switch (opcode)
         {
@@ -90,7 +90,7 @@ public class CPU
         }
     }
 
-    private void Fetch()
+    public void Fetch()
     {
         MemoryControlUnit.MAR = ControlUnit.PC++;
         MemoryControlUnit.ReadSignal();
