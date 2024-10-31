@@ -8,43 +8,43 @@ using System.Threading.Tasks;
 
 namespace mini_lc3_vm.Devices
 {
-    public class Keyboard : IMappedMemory, IAttachable
+    public class Monitor : IMappedMemory, IAttachable
     {
-        public const ushort KBSR_ADDRESS = 0xFE00;
-        public const ushort KBDR_ADDRESS = 0xFE02;
-        private readonly IKeyboardDevice keyBoard;
+        public const ushort DSR_ADDRESS = 0xFE04;
+        public const ushort DDR_ADDRESS = 0xFE06;
+        private readonly IMonitorDevice monitor;
 
-        public ushort KBDR { get; set; }
-        public ushort KBSR { get; set; }
+        public ushort DDR { get; set; }
+        public ushort DSR { get; set; }
 
         private CancellationTokenSource cancellationTokenSource;
         private CancellationToken cancellationToken;
-        private Task readTask = Task.CompletedTask;
+        private Task task = Task.CompletedTask;
+        private AutoResetEvent autoResetEvent = new(false);
 
-        public Keyboard(IKeyboardDevice keyboardDevice)
+        public Monitor(IMonitorDevice monitorDevice)
         {
-            this.keyBoard = keyboardDevice;
+            this.monitor = monitorDevice;
 
-            KBDR = 0;
-            KBSR = 0;
+            DDR = 0;
+            DSR = 0;
 
             cancellationTokenSource = new CancellationTokenSource();
             cancellationToken = cancellationTokenSource.Token;
         }
-        public Keyboard(): this(ConsoleDevice.Instance)
+        public Monitor(): this(ConsoleDevice.Instance)
         {
         }
 
         public void OnReadSignal(ushort address, out short value)
         {
-            if (address == KBSR_ADDRESS)
+            if (address == DSR_ADDRESS)
             {
-                value = (short)KBSR;
+                value = (short)DSR;
             }
-            else if (address == KBDR_ADDRESS)
+            else if (address == DDR_ADDRESS)
             {
-                value = (short)KBDR;
-                KBSR = 0; // clear the ready bit [15]
+                value = (short)DDR;
             }
             else
             {
@@ -54,13 +54,12 @@ namespace mini_lc3_vm.Devices
 
         public void OnWriteSignal(ushort address, short value)
         {
-            if (address == KBSR_ADDRESS)
+            if (address == DDR_ADDRESS)
             {
-                KBSR = (ushort)value;
-            }
-            else if (address == KBDR_ADDRESS)
-            {
-                KBDR = (ushort)value;
+                DDR = (ushort)value;
+                DSR = 0; // clear the ready bit [15]
+
+                autoResetEvent.Set();
             }
         }
 
@@ -68,16 +67,19 @@ namespace mini_lc3_vm.Devices
         {
             cancellationToken = cancellationTokenSource.Token;
 
-            readTask = Task.Run(() =>
+            task = Task.Run(() =>
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    KBDR = keyBoard.Read();
-                    KBSR = 0x8000; // set the ready bit [15]
+                    if (autoResetEvent.WaitOne(100))
+                    {
+                        monitor.Write((byte)DDR);
+                        DSR = 0x8000; // set the ready bit [15]
+                    }
                 }
             }, cancellationToken);
 
-            machine.MemoryControlUnit.Map(MemoryRange.FromStartAndEnd(KBSR_ADDRESS, KBDR_ADDRESS), new Keyboard());
+            machine.MemoryControlUnit.Map(MemoryRange.FromStartAndEnd(DSR_ADDRESS, DDR_ADDRESS), new Keyboard());
 
             IsAttached = true;
         }
@@ -85,7 +87,7 @@ namespace mini_lc3_vm.Devices
         public void Detach()
         {
             cancellationTokenSource.Cancel();
-            readTask.Wait();
+            task.Wait();
             IsAttached = false;
         }
         public bool IsAttached { get; set; } = false;
