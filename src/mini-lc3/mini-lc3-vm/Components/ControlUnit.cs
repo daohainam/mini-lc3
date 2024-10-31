@@ -13,7 +13,7 @@ public class ControlUnit
     public NZP NZP { get; }
 }
 
-public struct NZP
+public class NZP
 {
     public bool N { get; set; } // Negative
     public bool Z { get; set; } // Zero
