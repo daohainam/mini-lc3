@@ -6,7 +6,7 @@ namespace mini_lc3_vm;
 
 public class LC3MachineBuilder: ILC3MachineBuilder
 {
-    private short[] programCode = [];
+    private ushort[] programCode = [];
     private bool useKeyboard = false;
     private bool useMonitor = false;
 
@@ -94,5 +94,5 @@ public class LC3MachineBuilder: ILC3MachineBuilder
         C .FILL x3000
         .END
     */
-    private static readonly short[] Loop = [0x2001, -16384, 0x3000];
+    private static readonly ushort[] Loop = [0x2001, 0xC000, 0x3000];
 }

@@ -113,6 +113,8 @@ public class CPU
             var sr2 = ControlUnit.IR & 0x7;
             ALU.RegisterFile[dr] = (short)(ALU.RegisterFile[sr1] + ALU.RegisterFile[sr2]);
         }
+
+        CalculateNZP(ALU.RegisterFile[dr]);
     }
 
     private void And()
@@ -130,6 +132,8 @@ public class CPU
             var sr2 = ControlUnit.IR & 0x7;
             ALU.RegisterFile[dr] = (short)(ALU.RegisterFile[sr1] & ALU.RegisterFile[sr2]);
         }
+
+        CalculateNZP(ALU.RegisterFile[dr]);
     }
 
     private void Not()
@@ -137,13 +141,19 @@ public class CPU
         var dr = (ControlUnit.IR >> 9) & 0x7;
         var sr = (ControlUnit.IR >> 6) & 0x7;
         ALU.RegisterFile[dr] = (short)(~ALU.RegisterFile[sr]);
+
+        CalculateNZP(ALU.RegisterFile[dr]);
     }
 
     private void Load()
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
         var pcOffset9 = ControlUnit.IR & 0x1FF;
+        MemoryControlUnit.MAR = (ushort)(ControlUnit.PC + pcOffset9);
+        MemoryControlUnit.ReadSignal();
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
+
+        CalculateNZP(MemoryControlUnit.MDR);
     }
 
     private void LoadIndirect()
@@ -153,6 +163,8 @@ public class CPU
         MemoryControlUnit.MAR = (ushort)(ControlUnit.PC + pcOffset9);
         MemoryControlUnit.ReadSignal();
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
+
+        CalculateNZP(MemoryControlUnit.MDR);
     }
 
     private void LoadRegister()
@@ -163,6 +175,8 @@ public class CPU
         MemoryControlUnit.MAR = (ushort)(ALU.RegisterFile[baseR] + offset6);
         MemoryControlUnit.ReadSignal();
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
+
+        CalculateNZP(MemoryControlUnit.MDR);
     }
 
     private void LoadEffectiveAddress()
@@ -170,6 +184,8 @@ public class CPU
         var dr = (ControlUnit.IR >> 9) & 0x7;
         var pcOffset9 = ControlUnit.IR & 0x1FF;
         ALU.RegisterFile[dr] = (short)(ControlUnit.PC + pcOffset9);
+
+        CalculateNZP(ALU.RegisterFile[dr]);
     }
 
     private void Store()
@@ -207,7 +223,7 @@ public class CPU
         var z = (ControlUnit.IR >> 10) & 0x1;
         var p = (ControlUnit.IR >> 9) & 0x1;
         ushort pcOffset9 = (ushort)(ControlUnit.IR & 0x1FF);
-        if ((n == 1 && ControlUnit.NZP.N) || (z == 1 && ControlUnit.NZP.Z) || (p == 1 && ControlUnit.NZP.P))
+        if ((n == 1 && ControlUnit.N) || (z == 1 && ControlUnit.Z) || (p == 1 && ControlUnit.P))
         {
             ControlUnit.PC += pcOffset9;
         }
@@ -245,6 +261,12 @@ public class CPU
     private void ReturnFromInterrupt()
     {
         ControlUnit.PC = (ushort)ALU.RegisterFile[7];
+    }
+    private void CalculateNZP(short v)
+    {
+        ControlUnit.N = v < 0;
+        ControlUnit.Z = v == 0;
+        ControlUnit.P = v > 0;
     }
 
     #endregion

@@ -2,6 +2,6 @@
 {
     public interface IProgramLoader
     {
-        short[] LoadProgram();
+        ushort[] LoadProgram();
     }
 }

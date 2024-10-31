@@ -9,14 +9,14 @@ internal class HexProgramLoader : IProgramLoader
         this.path = path;
     }
 
-    public short[] LoadProgram()
+    public ushort[] LoadProgram()
     {
         var lines = File.ReadAllLines(path);
-        var program = new short[lines.Length];
+        var program = new ushort[lines.Length];
 
         for (int i = 0; i < lines.Length; i++)
         {
-            program[i] = Convert.ToInt16(lines[i], 16);
+            program[i] = Convert.ToUInt16(lines[i], 16);
         }
 
         return program;
