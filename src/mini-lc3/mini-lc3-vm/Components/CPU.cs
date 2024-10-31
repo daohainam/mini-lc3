@@ -148,8 +148,12 @@ public class CPU
     private void Load()
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
-        var pcOffset9 = ControlUnit.IR & 0x1FF;
-        MemoryControlUnit.MAR = (ushort)(ControlUnit.PC + pcOffset9);
+        ushort pcOffset9 = (ushort)(ControlUnit.IR & 0x1FF);
+        if ((ControlUnit.IR & 0x100) == 0x100)
+        {
+            pcOffset9 |= 0xFE00;
+        }
+        MemoryControlUnit.MAR = (ushort)(ControlUnit.PC + (short)pcOffset9);
         MemoryControlUnit.ReadSignal();
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
 
@@ -191,10 +195,16 @@ public class CPU
     private void Store()
     {
         var sr = (ControlUnit.IR >> 9) & 0x7;
-        var pcOffset9 = ControlUnit.IR & 0x1FF;
-        MemoryControlUnit.MAR = (ushort)(ControlUnit.PC + pcOffset9);
+        ushort pcOffset9 = (ushort)(ControlUnit.IR & 0x1FF);
+        if ((ControlUnit.IR & 0x100) == 0x100)
+        {
+            pcOffset9 |= 0xFE00;
+        }
+        MemoryControlUnit.MAR = (ushort)(ControlUnit.PC + (short)pcOffset9);
         MemoryControlUnit.MDR = ALU.RegisterFile[sr];
         MemoryControlUnit.WriteSignal();
+
+        CalculateNZP(MemoryControlUnit.MDR);
     }
 
     private void StoreIndirect()

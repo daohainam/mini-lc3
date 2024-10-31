@@ -76,22 +76,30 @@ namespace mini_lc3_tests
         public void Execute_LoadInstruction()
         {
             _cpu.ControlUnit.PC = 0x4018;
-            _memory.LoadInstructions([0b0010, 0b0101, 0b1010, 0b1111]); // LD R0, #1
+            _memory.LoadInstructions([0b0010_0101_1010_1111], 0x4018); // LD R2, x1AF
             _memoryControlUnit.Write(0x3FC8, 0x1234);
             _cpu.FetchAndExecute();
 
             _cpu.ALU.RegisterFile[2].Should().Be(0x1234);
+            _cpu.ControlUnit.PC.Should().Be(0x4019);
+            _cpu.ControlUnit.N.Should().BeFalse();
+            _cpu.ControlUnit.Z.Should().BeFalse();
+            _cpu.ControlUnit.P.Should().BeTrue();
         }
 
         [Fact]
         public void Execute_StoreInstruction()
         {
-            _cpu.Boot();
-            _memory.LoadInstructions([0x3001]); // ST R0, #1
-            _cpu.ALU.RegisterFile[0] = 0x1234;
+            _cpu.ControlUnit.PC = 0x4018;
+            _memory.LoadInstructions([0b0011_1110_0011_1111], 0x4018); // ST R7, x30
+            _cpu.ALU.RegisterFile[7] = 0x123;
             _cpu.FetchAndExecute();
 
-            _memoryControlUnit.Read(0x3001).Should().Be(0x1234);
+            _memoryControlUnit.Read(0x4049).Should().Be(0x123);
+            _cpu.ControlUnit.PC.Should().Be(0x4019);
+            _cpu.ControlUnit.N.Should().BeTrue();
+            _cpu.ControlUnit.Z.Should().BeFalse();
+            _cpu.ControlUnit.P.Should().BeFalse();
         }
 
         [Fact]
