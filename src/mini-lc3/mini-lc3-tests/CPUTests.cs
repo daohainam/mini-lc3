@@ -1,7 +1,3 @@
-using FluentAssertions;
-using mini_lc3_vm.Components;
-using mini_lc3_vm.Extensions;
-
 namespace mini_lc3_tests
 {
     public class CPUTests

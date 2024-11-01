@@ -10,5 +10,13 @@ namespace mini_lc3_vm.Extensions
             var opcode = cpu.Decode();
             cpu.Execute(opcode);
         }
+
+        public static void FetchAndExecuteUntilHalt(this CPU cpu)
+        {
+            do
+            {
+                cpu.FetchAndExecute();
+            } while (cpu.ControlUnit.IR != 0xF025);
+        }
     }
 }

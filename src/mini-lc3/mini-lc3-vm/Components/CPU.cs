@@ -18,6 +18,8 @@ public class CPU
     public void Boot()
     {
         ControlUnit.PC = DefaultPCAddress;
+        for (int i = 0; i < 8; i++)
+            ALU.RegisterFile[i] = 0;
     }
 
     public void Run(CancellationToken cancellationToken)

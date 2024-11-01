@@ -1,9 +1,13 @@
-﻿namespace mini_lc3_vm.Components;
+﻿using System.Diagnostics;
+
+namespace mini_lc3_vm.Components;
 
 public class ArithmeticLogicUnit
 {
     public RegisterFile RegisterFile { get; } = new RegisterFile();
 }
+
+[DebuggerDisplay("R0 = {R0}, R1 = {R1}, R2 = {R2}, R3 = {R3}, R4 = {R4}, R5 = {R5}, R6 = {R6}, R7 = {R7}")]
 public class RegisterFile
 {
     private readonly short[] _registers = new short[8];

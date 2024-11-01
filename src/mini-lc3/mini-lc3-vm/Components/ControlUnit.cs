@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace mini_lc3_vm.Components;
 
+[DebuggerDisplay("PC = {PC}, IR = {IR}, PSR = {PSR}")]
 public class ControlUnit
 {
     public ushort IR { get; set; }
