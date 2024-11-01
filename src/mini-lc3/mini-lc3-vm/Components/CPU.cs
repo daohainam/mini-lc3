@@ -148,12 +148,7 @@ public class CPU
     private void Load()
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
-        ushort pcOffset9 = (ushort)(ControlUnit.IR & 0x1FF);
-        if ((ControlUnit.IR & 0x100) == 0x100)
-        {
-            pcOffset9 |= 0xFE00;
-        }
-        MemoryControlUnit.MAR = (ushort)(ControlUnit.PC + (short)pcOffset9);
+        MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
         MemoryControlUnit.ReadSignal();
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
 
@@ -188,30 +183,20 @@ public class CPU
         var dr = (ControlUnit.IR >> 9) & 0x7;
         var pcOffset9 = ControlUnit.IR & 0x1FF;
         ALU.RegisterFile[dr] = (short)(ControlUnit.PC + pcOffset9);
-
-        CalculateNZP(ALU.RegisterFile[dr]);
     }
 
     private void Store()
     {
         var sr = (ControlUnit.IR >> 9) & 0x7;
-        ushort pcOffset9 = (ushort)(ControlUnit.IR & 0x1FF);
-        if ((ControlUnit.IR & 0x100) == 0x100)
-        {
-            pcOffset9 |= 0xFE00;
-        }
-        MemoryControlUnit.MAR = (ushort)(ControlUnit.PC + (short)pcOffset9);
+        MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
         MemoryControlUnit.MDR = ALU.RegisterFile[sr];
         MemoryControlUnit.WriteSignal();
-
-        CalculateNZP(MemoryControlUnit.MDR);
     }
 
     private void StoreIndirect()
     {
         var sr = (ControlUnit.IR >> 9) & 0x7;
-        var pcOffset9 = ControlUnit.IR & 0x1FF;
-        MemoryControlUnit.MAR = (ushort)(ControlUnit.PC + pcOffset9);
+        MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
         MemoryControlUnit.ReadSignal();
         MemoryControlUnit.MDR = ALU.RegisterFile[sr];
         MemoryControlUnit.WriteSignal();
@@ -229,13 +214,11 @@ public class CPU
 
     private void Branch()
     {
-        var n = (ControlUnit.IR >> 11) & 0x1;
-        var z = (ControlUnit.IR >> 10) & 0x1;
-        var p = (ControlUnit.IR >> 9) & 0x1;
-        ushort pcOffset9 = (ushort)(ControlUnit.IR & 0x1FF);
-        if ((n == 1 && ControlUnit.N) || (z == 1 && ControlUnit.Z) || (p == 1 && ControlUnit.P))
+        if ((ControlUnit.N && ((ControlUnit.IR >> 11) & 0x1) == 1) 
+            || (ControlUnit.Z && ((ControlUnit.IR >> 10) & 0x1) == 1)
+            || (ControlUnit.P && ((ControlUnit.IR >> 9) & 0x1) == 1))
         {
-            ControlUnit.PC += pcOffset9;
+            ControlUnit.PC = EvaluatePCRelativeAddress9();
         }
     }
 
@@ -249,6 +232,8 @@ public class CPU
     {
         var trapVector = (ushort)(ControlUnit.IR & 0xFF);
         ALU.RegisterFile[7] = (short)ControlUnit.PC;
+        MemoryControlUnit.MAR = trapVector;
+        MemoryControlUnit.ReadSignal();
         ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
     }
 
@@ -279,5 +264,14 @@ public class CPU
         ControlUnit.P = v > 0;
     }
 
+    private ushort EvaluatePCRelativeAddress9()
+    {
+        ushort pcOffset9 = (ushort)(ControlUnit.IR & 0x1FF);
+        if ((ControlUnit.IR & 0x100) == 0x100)
+        {
+            pcOffset9 |= 0xFE00;
+        }
+        return (ushort)(ControlUnit.PC + (short)pcOffset9);
+    }
     #endregion
 }

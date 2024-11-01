@@ -91,28 +91,28 @@ namespace mini_lc3_tests
         public void Execute_StoreInstruction()
         {
             _cpu.ControlUnit.PC = 0x4018;
-            _memory.LoadInstructions([0b0011_1110_0011_1111], 0x4018); // ST R7, x30
+            _memory.LoadInstructions([0b0011_1110_0011_0000], 0x4018); // ST R7, x30
             _cpu.ALU.RegisterFile[7] = 0x123;
             _cpu.FetchAndExecute();
 
             _memoryControlUnit.Read(0x4049).Should().Be(0x123);
             _cpu.ControlUnit.PC.Should().Be(0x4019);
-            _cpu.ControlUnit.N.Should().BeTrue();
+            _cpu.ControlUnit.N.Should().BeFalse();
             _cpu.ControlUnit.Z.Should().BeFalse();
-            _cpu.ControlUnit.P.Should().BeFalse();
+            _cpu.ControlUnit.P.Should().BeTrue();
         }
 
         [Fact]
-        public void Execute_BranchInstruction()
+        public void Execute_BranchInstruction_With_ZeroFlag()
         {
-            _cpu.Boot();
-            _memory.LoadInstructions([0x0E01]); // BRnzp #1
-            _cpu.ControlUnit.N = true;
-            _cpu.ControlUnit.Z = false;
+            _cpu.ControlUnit.PC = 0x4027;
+            _memory.LoadInstructions([0b_0000_0100_1101_1001], 0x4027); // BRnzp #1
+            _cpu.ControlUnit.N = false;
+            _cpu.ControlUnit.Z = true;
             _cpu.ControlUnit.P = false;
             _cpu.FetchAndExecute();
 
-            _cpu.ControlUnit.PC.Should().Be(0x3001);
+            _cpu.ControlUnit.PC.Should().Be(0x4101);
         }
 
         [Fact]
@@ -130,12 +130,12 @@ namespace mini_lc3_tests
         public void Execute_TrapInstruction()
         {
             _cpu.Boot();
-            _memory.LoadInstructions([0xF025]);
+            _memory.LoadInstructions([0b_1111_0000_0010_0101]);
             _memoryControlUnit.Write(0x25, 0x1234);
             _cpu.FetchAndExecute();
 
             _cpu.ControlUnit.PC.Should().Be(0x1234);
-            _cpu.ALU.RegisterFile[7].Should().Be(0x3000);
+            _cpu.ALU.RegisterFile[7].Should().Be(0x3001);
         }
     }
 }
