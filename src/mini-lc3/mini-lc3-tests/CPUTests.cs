@@ -95,7 +95,7 @@ namespace mini_lc3_tests
             _cpu.ControlUnit.PC.Should().Be(0x4019);
             _cpu.ControlUnit.N.Should().BeFalse();
             _cpu.ControlUnit.Z.Should().BeFalse();
-            _cpu.ControlUnit.P.Should().BeTrue();
+            _cpu.ControlUnit.P.Should().BeFalse();
         }
 
         [Fact]

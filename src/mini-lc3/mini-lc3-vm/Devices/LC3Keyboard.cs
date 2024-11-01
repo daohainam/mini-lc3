@@ -8,8 +8,10 @@ using System.Threading.Tasks;
 
 namespace mini_lc3_vm.Devices
 {
-    public class LC3Keyboard : IMappedMemory, IAttachable
+    public class LC3Keyboard : IMappedMemory, IAttachable, IDisposable
     {
+        private Guid id = Guid.NewGuid();
+
         public const ushort KBSR_ADDRESS = 0xFE00;
         public const ushort KBDR_ADDRESS = 0xFE02;
         private readonly IKeyboardDevice keyBoard;
@@ -19,7 +21,8 @@ namespace mini_lc3_vm.Devices
 
         private CancellationTokenSource cancellationTokenSource;
         private CancellationToken cancellationToken;
-        private Task readTask = Task.CompletedTask;
+        private Thread? pollThread;
+        private object lockObject = new object();
 
         public LC3Keyboard(IKeyboardDevice keyboardDevice)
         {
@@ -39,12 +42,18 @@ namespace mini_lc3_vm.Devices
         {
             if (address == KBSR_ADDRESS)
             {
-                value = (short)KBSR;
+                lock (lockObject)
+                {
+                    value = (short)KBSR;
+                }
             }
             else if (address == KBDR_ADDRESS)
             {
-                value = (short)KBDR;
-                KBSR = 0; // clear the ready bit [15]
+                lock (lockObject)
+                {
+                    value = (short)KBDR;
+                    KBSR = 0; // clear the ready bit [15]
+                }
             }
             else
             {
@@ -64,20 +73,34 @@ namespace mini_lc3_vm.Devices
             }
         }
 
+        private void pollKeyboard()
+        {
+            Thread.Sleep(100);
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                if (KBSR == 0x8000) // if the ready bit is set, wait for it to be cleared
+                {
+                    Thread.Sleep(10);
+                    continue;
+                }
+
+                var c = keyBoard.Read();
+                lock (lockObject)
+                {
+                    KBDR = c;
+                    KBSR = 0x8000; // set the ready bit [15]
+                }
+            }
+        }
+
         public void Attach(ILC3Machine machine)
         {
             cancellationToken = cancellationTokenSource.Token;
+            
+            pollThread = new Thread(pollKeyboard);
+            pollThread.Start();
 
-            readTask = Task.Run(() =>
-            {
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    KBDR = keyBoard.Read();
-                    KBSR = 0x8000; // set the ready bit [15]
-                }
-            }, cancellationToken);
-
-            machine.MemoryControlUnit.Map(MemoryRange.FromStartAndEnd(KBSR_ADDRESS, KBDR_ADDRESS), new LC3Keyboard());
+            machine.MemoryControlUnit.Map(MemoryRange.FromStartAndEnd(KBSR_ADDRESS, KBDR_ADDRESS), this);
 
             IsAttached = true;
         }
@@ -85,9 +108,19 @@ namespace mini_lc3_vm.Devices
         public void Detach()
         {
             cancellationTokenSource.Cancel();
-            readTask.Wait();
             IsAttached = false;
         }
+
+        public void Dispose()
+        {
+            if (IsAttached)
+            {
+                Detach();
+            }
+        }
+
         public bool IsAttached { get; set; } = false;
+
+        
     }
 }
