@@ -1,4 +1,6 @@
-﻿namespace mini_lc3_vm.Components;
+﻿using System.Buffers.Text;
+
+namespace mini_lc3_vm.Components;
 
 public class CPU
 {
@@ -168,8 +170,7 @@ public class CPU
     private void LoadIndirect()
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
-        var pcOffset9 = ControlUnit.IR & 0x1FF;
-        MemoryControlUnit.MAR = (ushort)(ControlUnit.PC + pcOffset9);
+        MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
         MemoryControlUnit.ReadSignal();
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
 
@@ -180,7 +181,11 @@ public class CPU
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
         var baseR = (ControlUnit.IR >> 6) & 0x7;
-        var offset6 = ControlUnit.IR & 0x3F;
+        ushort offset6 = (ushort)(ControlUnit.IR & 0x3F);
+        if ((offset6 & 0x20) == 0x20)
+        {
+            offset6 |= 0xFFC0; // sign extend
+        }
         MemoryControlUnit.MAR = (ushort)(ALU.RegisterFile[baseR] + offset6);
         MemoryControlUnit.ReadSignal();
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
@@ -191,8 +196,7 @@ public class CPU
     private void LoadEffectiveAddress()
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
-        var pcOffset9 = ControlUnit.IR & 0x1FF;
-        ALU.RegisterFile[dr] = (short)(ControlUnit.PC + pcOffset9);
+        ALU.RegisterFile[dr] = (short)EvaluatePCRelativeAddress9();
     }
 
     private void Store()
@@ -216,7 +220,11 @@ public class CPU
     {
         var sr = (ControlUnit.IR >> 9) & 0x7;
         var baseR = (ControlUnit.IR >> 6) & 0x7;
-        var offset6 = ControlUnit.IR & 0x3F;
+        ushort offset6 = (ushort)(ControlUnit.IR & 0x3F);
+        if ((offset6 & 0x20) == 0x20)
+        {
+            offset6 |= 0xFFC0; // sign extend
+        }
         MemoryControlUnit.MAR = (ushort)(ALU.RegisterFile[baseR] + offset6);
         MemoryControlUnit.MDR = ALU.RegisterFile[sr];
         MemoryControlUnit.WriteSignal();
@@ -274,6 +282,15 @@ public class CPU
         ControlUnit.P = v > 0;
     }
 
+    private ushort EvaluatePCRelativeAddress6()
+    {
+        ushort pcOffset6 = (ushort)(ControlUnit.IR & 0x3F);
+        if ((ControlUnit.IR & 0x20) == 0x20)
+        {
+            pcOffset6 |= 0xFFC0;
+        }
+        return (ushort)(ControlUnit.PC + (short)pcOffset6);
+    }
     private ushort EvaluatePCRelativeAddress9()
     {
         ushort pcOffset9 = (ushort)(ControlUnit.IR & 0x1FF);

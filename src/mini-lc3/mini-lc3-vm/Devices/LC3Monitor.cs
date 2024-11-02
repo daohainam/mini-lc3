@@ -27,7 +27,7 @@ namespace mini_lc3_vm.Devices
             this.monitor = monitorDevice;
 
             DDR = 0;
-            DSR = 0;
+            DSR = 0x8000; // ready
 
             cancellationTokenSource = new CancellationTokenSource();
             cancellationToken = cancellationTokenSource.Token;
@@ -79,7 +79,7 @@ namespace mini_lc3_vm.Devices
                 }
             }, cancellationToken);
 
-            machine.MemoryControlUnit.Map(MemoryRange.FromStartAndEnd(DSR_ADDRESS, DDR_ADDRESS), new LC3Keyboard());
+            machine.MemoryControlUnit.Map(MemoryRange.FromStartAndEnd(DSR_ADDRESS, DDR_ADDRESS), this);
 
             IsAttached = true;
         }
