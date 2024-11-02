@@ -80,7 +80,7 @@ namespace mini_lc3_vm.Devices
             {
                 if (KBSR == 0x8000) // if the ready bit is set, wait for it to be cleared
                 {
-                    Thread.Sleep(10);
+                    Thread.Sleep(5);
                     continue;
                 }
 
