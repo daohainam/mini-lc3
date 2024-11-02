@@ -59,9 +59,9 @@ public class IOTests
 
     [Theory]
     [InlineData("Hello, World!\n")]
-    //[InlineData("We know that the Calculator.Add() function is working correctly for these specific values, but we'll clearly need to test more values than just 1 and 2. The question is, what's the best way to achieve this? We could copy and paste the test and just change the specific values used for each one, but that's a bit messy. Instead, xUnit provides the [Theory] attribute for this situation.\n")]
-    //[InlineData("This is a test of the LC3 Keyboard device.\n")]
-    //[InlineData("LC-3 has 1 input and 1 out device. Both devices are built-in, so no additional drivers are needed to access either one\n")]
+    [InlineData("We know that the Calculator.Add() function is working correctly for these specific values, but we'll clearly need to test more values than just 1 and 2. The question is, what's the best way to achieve this? We could copy and paste the test and just change the specific values used for each one, but that's a bit messy. Instead, xUnit provides the [Theory] attribute for this situation.\n")]
+    [InlineData("This is a test of the LC3 Keyboard device.\n")]
+    [InlineData("LC-3 has 1 input and 1 out device. Both devices are built-in, so no additional drivers are needed to access either one\n")]
     public void Monitor_Write_Test(string inputString)
     {
         var console = new MemoryConsoleDevice();
@@ -90,7 +90,7 @@ public class IOTests
                     state = _machine.CPU.MemoryControlUnit.Read(LC3Monitor.DSR_ADDRESS);
                 }
             } while (!cancellationToken.IsCancellationRequested);
-        } while (!cancellationToken.IsCancellationRequested);
+        } 
 
         console.GetOutput().Should().Be(inputString);
     }

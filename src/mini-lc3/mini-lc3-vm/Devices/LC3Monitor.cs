@@ -14,23 +14,9 @@ namespace mini_lc3_vm.Devices
         public const ushort DDR_ADDRESS = 0xFE06;
         private readonly IMonitorDevice monitor;
 
-        public ushort DDR { get; set; }
-        public ushort DSR { get; set; }
-
-        private CancellationTokenSource cancellationTokenSource;
-        private CancellationToken cancellationToken;
-        private Task task = Task.CompletedTask;
-        private AutoResetEvent autoResetEvent = new(false);
-
         public LC3Monitor(IMonitorDevice monitorDevice)
         {
             this.monitor = monitorDevice;
-
-            DDR = 0;
-            DSR = 0x8000; // ready
-
-            cancellationTokenSource = new CancellationTokenSource();
-            cancellationToken = cancellationTokenSource.Token;
         }
         public LC3Monitor(): this(ConsoleDevice.Instance)
         {
@@ -40,11 +26,11 @@ namespace mini_lc3_vm.Devices
         {
             if (address == DSR_ADDRESS)
             {
-                value = (short)DSR;
+                value = (short)(monitor.Ready ? 0x8000 : 0x0000);
             }
             else if (address == DDR_ADDRESS)
             {
-                value = (short)DDR;
+                value = 0;
             }
             else
             {
@@ -56,29 +42,12 @@ namespace mini_lc3_vm.Devices
         {
             if (address == DDR_ADDRESS)
             {
-                DDR = (ushort)value;
-                DSR = 0; // clear the ready bit [15]
-
-                autoResetEvent.Set();
+                monitor.Write((byte)value);
             }
         }
 
         public void Attach(ILC3Machine machine)
         {
-            cancellationToken = cancellationTokenSource.Token;
-
-            task = Task.Run(() =>
-            {
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    if (autoResetEvent.WaitOne(100))
-                    {
-                        monitor.Write((byte)DDR);
-                        DSR = 0x8000; // set the ready bit [15]
-                    }
-                }
-            }, cancellationToken);
-
             machine.MemoryControlUnit.Map(MemoryRange.FromStartAndEnd(DSR_ADDRESS, DDR_ADDRESS), this);
 
             IsAttached = true;
@@ -86,8 +55,6 @@ namespace mini_lc3_vm.Devices
 
         public void Detach()
         {
-            cancellationTokenSource.Cancel();
-            task.Wait();
             IsAttached = false;
         }
         public bool IsAttached { get; set; } = false;

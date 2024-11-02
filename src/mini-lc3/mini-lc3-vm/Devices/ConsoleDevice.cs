@@ -9,11 +9,15 @@ namespace mini_lc3_vm.Devices
 {
     public interface IKeyboardDevice
     {
+        bool Ready { get; }
+
         byte Read();
     }
 
     public interface IMonitorDevice
     {
+        bool Ready { get; }
+
         void Write(byte c);
     }
 
@@ -28,6 +32,8 @@ namespace mini_lc3_vm.Devices
         {
             Console.Write((char)c);
         }
+
+        public bool Ready => true;
 
         public static readonly ConsoleDevice Instance = new();
     }

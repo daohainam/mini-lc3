@@ -7,12 +7,14 @@ namespace mini_lc3_tests.Devices
     internal class MemoryConsoleDevice : IKeyboardDevice, IMonitorDevice
     {
         private ConcurrentQueue<byte> Input { get; } = new();
-        private SemaphoreSlim semaphore = new(0, 1000);
         private ConcurrentQueue<byte> Output { get; } = new();
+
+        bool IMonitorDevice.Ready => true;
+
+        bool IKeyboardDevice.Ready => !Input.IsEmpty;
 
         public byte Read()
         {
-            semaphore.Wait();
             if (Input.IsEmpty)
             {
                 throw new InvalidOperationException("No input available");
@@ -43,7 +45,6 @@ namespace mini_lc3_tests.Devices
             foreach (var c in s)
             {
                 Input.Enqueue((byte)c);
-                semaphore.Release(); 
             }
         }
 
