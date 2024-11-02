@@ -108,6 +108,10 @@ public class CPU
         if (immFlag == 1)
         {
             var imm5 = ControlUnit.IR & 0x1F;
+            if ((imm5 & 0x10) == 0x10)
+            {
+                imm5 |= 0xFFE0; // sign extend
+            }
             ALU.RegisterFile[dr] = (short)(ALU.RegisterFile[sr1] + imm5);
         }
         else
@@ -127,6 +131,10 @@ public class CPU
         if (immFlag == 1)
         {
             var imm5 = ControlUnit.IR & 0x1F;
+            if ((imm5 & 0x10) == 0x10)
+            {
+                imm5 |= 0xFFE0; // sign extend
+            }
             ALU.RegisterFile[dr] = (short)(ALU.RegisterFile[sr1] & imm5);
         }
         else
