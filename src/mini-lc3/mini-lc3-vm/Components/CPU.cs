@@ -206,6 +206,11 @@ public class CPU
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
         ALU.RegisterFile[dr] = (short)EvaluatePCRelativeAddress9();
+
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("LEA {dr} into R{dr}", ALU.RegisterFile[dr], dr);
+        }
     }
 
     private void Store()
