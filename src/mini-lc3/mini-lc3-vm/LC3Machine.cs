@@ -4,6 +4,8 @@ namespace mini_lc3_vm;
 
 public class LC3Machine: ILC3Machine
 {
+    public string Name { get; set; }
+
     private readonly List<IAttachable> devices = [];
 
     public CPU CPU { get; }
@@ -13,6 +15,8 @@ public class LC3Machine: ILC3Machine
 
     public LC3Machine()
     {
+        Name = "LC-3";
+
         Memory = new();
         MemoryControlUnit = new(Memory);
         CPU = new(MemoryControlUnit);

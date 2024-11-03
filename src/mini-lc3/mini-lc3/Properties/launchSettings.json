@@ -2,7 +2,7 @@
   "profiles": {
     "mini-lc3": {
       "commandName": "Project",
-      "commandLineArgs": "..\\..\\..\\..\\..\\..\\samples\\character-count.hex"
+      "commandLineArgs": "hello-world.hex"
     }
   }
 }

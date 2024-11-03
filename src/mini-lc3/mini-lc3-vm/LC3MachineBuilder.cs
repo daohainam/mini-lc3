@@ -1,14 +1,15 @@
 ﻿using mini_lc3_vm.Components;
 using mini_lc3_vm.Devices;
+using mini_lc3_vm.ExecuteableFile;
 using mini_lc3_vm.ProgramLoaders;
 
 namespace mini_lc3_vm;
 
 public class LC3MachineBuilder: ILC3MachineBuilder
 {
-    private ushort[] programCode = [];
     private bool useKeyboard = false;
     private bool useMonitor = false;
+    private IExecutableImage? executableImage;
 
     public ILC3Machine Build()
     {
@@ -22,7 +23,8 @@ public class LC3MachineBuilder: ILC3MachineBuilder
             machine.AttachDevice(new LC3Monitor());
         }
 
-        machine.Memory.LoadInstructions(programCode.Length == 0 ? Loop : programCode, CPU.DefaultPCAddress);
+        executableImage ??= new ExecutableImage(0x3000, Loop);
+        machine.Memory.LoadInstructions(executableImage.Instructions, executableImage.LoadAddress);
 
         return machine;
     }
@@ -66,7 +68,7 @@ public class LC3MachineBuilder: ILC3MachineBuilder
     {
         try
         {
-            programCode = LoaderFactory.GetLoader(fileName).LoadProgram();
+            this.executableImage = LoaderFactory.GetLoader(fileName).LoadExecutableFile();
         }
         catch (Exception ex)
         {
