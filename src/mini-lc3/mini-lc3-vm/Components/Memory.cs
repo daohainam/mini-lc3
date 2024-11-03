@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +15,16 @@ namespace mini_lc3_vm.Components
         public const int MemorySize = 0x10000 - IOPageSize;
 
         private readonly short[] _memory = new short[MemorySize];
+        private ILogger<Memory> logger;
+
+        public Memory() : this(NullLogger<Memory>.Instance)
+        {
+        }
+
+        public Memory(ILogger<Memory> logger)
+        {
+            this.logger = logger;
+        }
 
         public IEnumerator<short> GetEnumerator()
         {

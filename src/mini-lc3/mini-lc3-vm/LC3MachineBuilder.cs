@@ -1,4 +1,6 @@
-﻿using mini_lc3_vm.Components;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using mini_lc3_vm.Components;
 using mini_lc3_vm.Devices;
 using mini_lc3_vm.ExecuteableFile;
 using mini_lc3_vm.ProgramLoaders;
@@ -10,10 +12,18 @@ public class LC3MachineBuilder: ILC3MachineBuilder
     private bool useKeyboard = false;
     private bool useMonitor = false;
     private IExecutableImage? executableImage;
+    private ServiceCollection services = new();
 
     public ILC3Machine Build()
     {
-        var machine = new LC3Machine();
+        var serviceProvider = services.BuildServiceProvider();
+        var loggingFactory = serviceProvider.GetService<ILoggerFactory>();
+        if (loggingFactory is null)
+        {
+            services.AddLogging(builder => builder.AddConsole());
+        }
+
+        var machine = new LC3Machine(loggingFactory);
         if (useKeyboard)
         {
             machine.AttachDevice(new LC3Keyboard());
@@ -25,6 +35,7 @@ public class LC3MachineBuilder: ILC3MachineBuilder
 
         executableImage ??= new ExecutableImage(0x3000, Loop);
         machine.Memory.LoadInstructions(executableImage.Instructions, executableImage.LoadAddress);
+
 
         return machine;
     }
@@ -61,10 +72,18 @@ public class LC3MachineBuilder: ILC3MachineBuilder
             }
         }
 
+        builder.services.AddLogging(builder => builder.AddConsole());
+
         return builder;
     }
 
-    private void LoadProgram(string fileName)
+    public ILC3MachineBuilder AddLogging(Action<ILoggingBuilder> configure)
+    {
+        services.AddLogging(configure);
+        return this;
+    }
+
+    public ILC3MachineBuilder LoadProgram(string fileName)
     {
         try
         {
@@ -75,6 +94,8 @@ public class LC3MachineBuilder: ILC3MachineBuilder
             Console.WriteLine($"Error loading program: {ex.Message}");
             throw;
         }
+
+        return this;
     }
 
     public ILC3MachineBuilder UseKeyBoard()

@@ -1,4 +1,5 @@
-﻿using System.Buffers.Text;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace mini_lc3_vm.Components;
 
@@ -10,11 +11,19 @@ public class CPU
     public ControlUnit ControlUnit { get; }
     public MemoryControlUnit MemoryControlUnit { get; }
 
-    public CPU(MemoryControlUnit memoryControlUnit)
+    private readonly ILogger<CPU> logger;
+
+    public CPU(MemoryControlUnit memoryControlUnit): this(memoryControlUnit, NullLogger<CPU>.Instance)
+    {
+    }
+
+    public CPU(MemoryControlUnit memoryControlUnit, ILogger<CPU> logger)
     {
         ALU = new();
         ControlUnit = new();
         MemoryControlUnit = memoryControlUnit;
+
+        this.logger = logger;
     }
 
     public void Boot()

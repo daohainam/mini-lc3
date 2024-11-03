@@ -1,13 +1,22 @@
-﻿namespace mini_lc3_vm.Components;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+
+namespace mini_lc3_vm.Components;
 
 public class MemoryControlUnit: ILC3MemoryControlUnit, IMapableMemory
 {
     private readonly Memory _memory;
     private readonly Dictionary<MemoryRange, IMappedMemory> _mappedDevices = [];
+    private ILogger<MemoryControlUnit> logger;
 
-    public MemoryControlUnit(Memory memory)
+    public MemoryControlUnit(Memory memory, ILogger<MemoryControlUnit> logger)
     {
         _memory = memory;
+        this.logger = logger;
+    }
+
+    public MemoryControlUnit(Memory memory) : this(memory, NullLogger<MemoryControlUnit>.Instance)
+    {
     }
 
     public ushort MAR { get; set; }
