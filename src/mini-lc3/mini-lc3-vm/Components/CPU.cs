@@ -258,6 +258,11 @@ public class CPU
     {
         var baseR = (ControlUnit.IR >> 6) & 0x7;
         ControlUnit.PC = (ushort)ALU.RegisterFile[baseR];
+
+        if ((ControlUnit.IR & 0x1) == 0x1) // bit 0 is set means it's a JMPT instruction (new, not in the book)
+        {
+            ControlUnit.Privileged = false;
+        }
     }
 
     private void Trap()
@@ -267,6 +272,7 @@ public class CPU
         MemoryControlUnit.MAR = trapVector;
         MemoryControlUnit.ReadSignal();
         ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
+        ControlUnit.Privileged = true;
     }
 
     private void JumpToSubroutine()
