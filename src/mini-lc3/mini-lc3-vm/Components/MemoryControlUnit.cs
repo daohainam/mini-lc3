@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using mini_lc3_vm.Exceptions;
 
 namespace mini_lc3_vm.Components;
 
@@ -21,9 +22,12 @@ public class MemoryControlUnit: ILC3MemoryControlUnit, IMapableMemory
 
     public ushort MAR { get; set; }
     public short MDR { get; set; }
+    public ushort MPR { get; set; } = 0xFFFF; // memory protection register, https://acg.cis.upenn.edu/milom/cse240-Fall05/handouts/Ch09-a.pdf
 
-    public void ReadSignal()
+    public void ReadSignal(bool isUserMode)
     {
+        EnsureProtectionLevel(isUserMode);
+
         if (MAR >= Memory.MemorySize)
         {
             foreach (var (range, device) in _mappedDevices)
@@ -41,8 +45,11 @@ public class MemoryControlUnit: ILC3MemoryControlUnit, IMapableMemory
         }
         MDR = _memory[MAR];
     }
-    public void WriteSignal()
+
+    public void WriteSignal(bool isUserMode)
     {
+        EnsureProtectionLevel(isUserMode);
+
         if (MAR >= Memory.MemorySize) {
             foreach (var (range, device) in _mappedDevices)
             {
@@ -72,5 +79,19 @@ public class MemoryControlUnit: ILC3MemoryControlUnit, IMapableMemory
 
         _mappedDevices.Add(range, device);
     }
+
+    private void EnsureProtectionLevel(bool isUserMode)
+    {
+        if (isUserMode)
+        {
+            var block = (MPR >> 12) & 0xF;
+            if ((MPR & block) == 0)
+            {
+                throw new MemoryAccessViolationException(MAR);
+            }
+        }
+    }
+
+
 
 }

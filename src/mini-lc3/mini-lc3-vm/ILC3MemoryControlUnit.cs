@@ -10,7 +10,7 @@ namespace mini_lc3_vm
     {
         ushort MAR { get; set; }
         short MDR { get; set; }
-        void ReadSignal();
-        void WriteSignal();
+        void ReadSignal(bool isUserMode);
+        void WriteSignal(bool isUserMode);
     }
 }

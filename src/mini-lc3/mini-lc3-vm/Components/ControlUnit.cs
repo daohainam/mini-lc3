@@ -8,7 +8,6 @@ public class ControlUnit
     public ushort IR { get; set; }
     public ushort PC { get; set; }
     public ushort PSR { get; set; }
-    public ushort MPR { get; set; } // memory protection register, https://acg.cis.upenn.edu/milom/cse240-Fall05/handouts/Ch09-a.pdf
     public bool P
     {
         get => (PSR & 0x1) == 0x1;

@@ -1,5 +1,5 @@
-﻿
-
+﻿using mini_lc3_tests.Devices;
+using mini_lc3_vm;
 using mini_lc3_vm.Devices;
 using System.Text;
 using System.Threading;
@@ -34,12 +34,12 @@ public class IOTests
 
         cancellationTokenSource.CancelAfter(inputString.Length * 100);
 
-        var state = _machine.CPU.MemoryControlUnit.Read(LC3Keyboard.KBSR_ADDRESS);
+        var state = _machine.CPU.MemoryControlUnit.Read(LC3Keyboard.KBSR_ADDRESS, false);
         do
         {
             if ((state & 0x8000) == 0x8000) // is the device ready?
             {
-                var character = _machine.CPU.MemoryControlUnit.Read(LC3Keyboard.KBDR_ADDRESS);
+                var character = _machine.CPU.MemoryControlUnit.Read(LC3Keyboard.KBDR_ADDRESS, false);
 
                 var ascii = (char)character;
                 Console.Write(ascii);
@@ -51,7 +51,7 @@ public class IOTests
                 }
             }
 
-            state = _machine.CPU.MemoryControlUnit.Read(LC3Keyboard.KBSR_ADDRESS);
+            state = _machine.CPU.MemoryControlUnit.Read(LC3Keyboard.KBSR_ADDRESS, false);
         } while (!cancellationToken.IsCancellationRequested);
 
         outputString.ToString().Should().Be(inputString);
@@ -72,7 +72,7 @@ public class IOTests
 
         cancellationTokenSource.CancelAfter(inputString.Length * 100);
 
-        var state = _machine.CPU.MemoryControlUnit.Read(LC3Monitor.DSR_ADDRESS);
+        var state = _machine.CPU.MemoryControlUnit.Read(LC3Monitor.DSR_ADDRESS, false);
         for (int i = 0; i < inputString.Length; i++)
         {
             short c = (short)inputString[i];
@@ -81,13 +81,13 @@ public class IOTests
             {
                 if ((state & 0x8000) == 0x8000) // is the device ready?
                 {
-                    _machine.CPU.MemoryControlUnit.Write(LC3Monitor.DDR_ADDRESS, c);
+                    _machine.CPU.MemoryControlUnit.Write(LC3Monitor.DDR_ADDRESS, c, false);
                     break;
                 } 
                 else
                 {
                     Thread.Sleep(5);
-                    state = _machine.CPU.MemoryControlUnit.Read(LC3Monitor.DSR_ADDRESS);
+                    state = _machine.CPU.MemoryControlUnit.Read(LC3Monitor.DSR_ADDRESS, false);
                 }
             } while (!cancellationToken.IsCancellationRequested);
         } 

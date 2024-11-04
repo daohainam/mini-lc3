@@ -106,7 +106,7 @@ public class CPU
     public void Fetch()
     {
         MemoryControlUnit.MAR = ControlUnit.PC++;
-        MemoryControlUnit.ReadSignal();
+        MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
         ControlUnit.IR = (ushort)MemoryControlUnit.MDR;
     }
 
@@ -170,7 +170,7 @@ public class CPU
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
         MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
-        MemoryControlUnit.ReadSignal();
+        MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
 
         CalculateNZP(MemoryControlUnit.MDR);
@@ -180,7 +180,7 @@ public class CPU
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
         MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
-        MemoryControlUnit.ReadSignal();
+        MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
 
         CalculateNZP(MemoryControlUnit.MDR);
@@ -196,7 +196,7 @@ public class CPU
             offset6 |= 0xFFC0; // sign extend
         }
         MemoryControlUnit.MAR = (ushort)(ALU.RegisterFile[baseR] + offset6);
-        MemoryControlUnit.ReadSignal();
+        MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
 
         CalculateNZP(MemoryControlUnit.MDR);
@@ -218,16 +218,16 @@ public class CPU
         var sr = (ControlUnit.IR >> 9) & 0x7;
         MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
         MemoryControlUnit.MDR = ALU.RegisterFile[sr];
-        MemoryControlUnit.WriteSignal();
+        MemoryControlUnit.WriteSignal(!ControlUnit.Privileged);
     }
 
     private void StoreIndirect()
     {
         var sr = (ControlUnit.IR >> 9) & 0x7;
         MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
-        MemoryControlUnit.ReadSignal();
+        MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
         MemoryControlUnit.MDR = ALU.RegisterFile[sr];
-        MemoryControlUnit.WriteSignal();
+        MemoryControlUnit.WriteSignal(!ControlUnit.Privileged);
     }
 
     private void StoreRegister()
@@ -241,7 +241,7 @@ public class CPU
         }
         MemoryControlUnit.MAR = (ushort)(ALU.RegisterFile[baseR] + offset6);
         MemoryControlUnit.MDR = ALU.RegisterFile[sr];
-        MemoryControlUnit.WriteSignal();
+        MemoryControlUnit.WriteSignal(!ControlUnit.Privileged);
     }
 
     private void Branch()
@@ -270,7 +270,7 @@ public class CPU
         var trapVector = (ushort)(ControlUnit.IR & 0xFF);
         ALU.RegisterFile[7] = (short)ControlUnit.PC;
         MemoryControlUnit.MAR = trapVector;
-        MemoryControlUnit.ReadSignal();
+        MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
         ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
         ControlUnit.Privileged = true;
     }

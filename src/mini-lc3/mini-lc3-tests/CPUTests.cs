@@ -73,7 +73,7 @@ namespace mini_lc3_tests
         {
             _cpu.ControlUnit.PC = 0x4018;
             _memory.LoadInstructions([0b0010_0101_1010_1111], 0x4018); // LD R2, x1AF
-            _memoryControlUnit.Write(0x3FC8, 0x1234);
+            _memoryControlUnit.Write(0x3FC8, 0x1234, !_cpu.ControlUnit.Privileged);
             _cpu.FetchAndExecute();
 
             _cpu.ALU.RegisterFile[2].Should().Be(0x1234);
@@ -91,7 +91,7 @@ namespace mini_lc3_tests
             _cpu.ALU.RegisterFile[7] = 0x123;
             _cpu.FetchAndExecute();
 
-            _memoryControlUnit.Read(0x4049).Should().Be(0x123);
+            _memoryControlUnit.Read(0x4049, !_cpu.ControlUnit.Privileged).Should().Be(0x123);
             _cpu.ControlUnit.PC.Should().Be(0x4019);
             _cpu.ControlUnit.N.Should().BeFalse();
             _cpu.ControlUnit.Z.Should().BeFalse();
@@ -127,7 +127,7 @@ namespace mini_lc3_tests
         {
             _cpu.Boot();
             _memory.LoadInstructions([0b_1111_0000_0010_0101]);
-            _memoryControlUnit.Write(0x25, 0x1234);
+            _memoryControlUnit.Write(0x25, 0x1234, !_cpu.ControlUnit.Privileged);
             _cpu.FetchAndExecute();
 
             _cpu.ControlUnit.PC.Should().Be(0x1234);
