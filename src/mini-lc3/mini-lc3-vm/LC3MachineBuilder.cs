@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using mini_lc3_vm.Components;
 using mini_lc3_vm.Devices;
 using mini_lc3_vm.ExecuteableFile;
+using mini_lc3_vm.OS;
 using mini_lc3_vm.ProgramLoaders;
 
 namespace mini_lc3_vm;
@@ -32,6 +33,8 @@ public class LC3MachineBuilder: ILC3MachineBuilder
         {
             machine.AttachDevice(new LC3Monitor());
         }
+
+        machine.Memory.LoadInstructions(EmbeddedOS.OsImage, 0);
 
         executableImage ??= new ExecutableImage(0x3000, Loop);
         machine.Memory.LoadInstructions(executableImage.Instructions, executableImage.LoadAddress);

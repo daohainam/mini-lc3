@@ -8,6 +8,9 @@ namespace mini_lc3_vm.OS
 {
     internal class EmbeddedOS
     {
+        // refer to https://acg.cis.upenn.edu/milom/cse240-Fall05/handouts/code/lc3os.asm
+        // remember to reencode JMPT with 0xC1C1
+
         public static readonly ushort[] OsImage = [
             0x0000,
             0x0264,
