@@ -228,7 +228,7 @@ public class CPU
 
         if (logger.IsEnabled(LogLevel.Debug))
         {
-            logger.LogDebug("LEA {dr} into R{dr}", ALU.RegisterFile[dr], dr);
+            logger.LogDebug("LEA {dr:X} into R{dr}", ALU.RegisterFile[dr], dr);
         }
     }
 
