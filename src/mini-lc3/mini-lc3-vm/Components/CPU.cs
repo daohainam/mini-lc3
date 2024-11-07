@@ -132,6 +132,11 @@ public class CPU
         }
 
         CalculateNZP(ALU.RegisterFile[dr]);
+
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("ADD R{dr} with {value:X}", dr, ALU.RegisterFile[dr]);
+        }
     }
 
     private void And()
@@ -155,6 +160,11 @@ public class CPU
         }
 
         CalculateNZP(ALU.RegisterFile[dr]);
+
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("AND R{dr} with {value:X}", dr, ALU.RegisterFile[dr]);
+        }
     }
 
     private void Not()
@@ -164,30 +174,25 @@ public class CPU
         ALU.RegisterFile[dr] = (short)(~ALU.RegisterFile[sr]);
 
         CalculateNZP(ALU.RegisterFile[dr]);
+
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("NOT R{dr} with {value:X}", dr, ALU.RegisterFile[dr]);
+        }
     }
 
     private void Load()
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
         MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
-        if (logger.IsEnabled(LogLevel.Debug))
-        {
-            logger.LogDebug("LD R{dr} with address in {addr}", dr, MemoryControlUnit.MAR);
-        }
         MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
-        MemoryControlUnit.MAR = (ushort)MemoryControlUnit.MDR;
-        MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
-        if (logger.IsEnabled(LogLevel.Debug))
-        {
-            logger.LogDebug(" [{addr}] contains {value}", MemoryControlUnit.MAR, MemoryControlUnit.MDR);
-        }
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
 
         CalculateNZP(MemoryControlUnit.MDR);
 
         if (logger.IsEnabled(LogLevel.Debug))
         {
-            logger.LogDebug("LD R{dr} with {value} from {addr}", dr, ALU.RegisterFile[dr], MemoryControlUnit.MAR);
+            logger.LogDebug("LD R{dr} with {value:X} from {addr:X}", dr, ALU.RegisterFile[dr], MemoryControlUnit.MAR);
         }
     }
 
@@ -196,36 +201,43 @@ public class CPU
         var dr = (ControlUnit.IR >> 9) & 0x7;
         MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
         MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
+        MemoryControlUnit.MAR = (ushort)MemoryControlUnit.MDR;
+        MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
 
         CalculateNZP(MemoryControlUnit.MDR);
 
         if (logger.IsEnabled(LogLevel.Debug)) {
-            logger.LogDebug("LDI R{dr} with {value} from {addr}", dr, ALU.RegisterFile[dr], MemoryControlUnit.MAR);
+            logger.LogDebug("LDI R{dr} with {value:X} from {addr:X}", dr, ALU.RegisterFile[dr], MemoryControlUnit.MAR);
         }
     }
 
     private void LoadRegister()
     {
+        // LDR
         var dr = (ControlUnit.IR >> 9) & 0x7;
         var baseR = (ControlUnit.IR >> 6) & 0x7;
-        ushort offset6 = (ushort)(ControlUnit.IR & 0x3F);
-        if ((offset6 & 0x20) == 0x20)
-        {
-            offset6 |= 0xFFC0; // sign extend
-        }
+        ushort offset6 = EvaluatePCRelativeAddress6();
         MemoryControlUnit.MAR = (ushort)(ALU.RegisterFile[baseR] + offset6);
         MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
 
         CalculateNZP(MemoryControlUnit.MDR);
+
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("LDR R{dr} with {value:X} from {addr:X}", dr, ALU.RegisterFile[dr], MemoryControlUnit.MAR);
+        }
     }
 
     private void LoadEffectiveAddress()
     {
+        // LEA
         var dr = (ControlUnit.IR >> 9) & 0x7;
         ALU.RegisterFile[dr] = (short)EvaluatePCRelativeAddress9();
-
+        
+        CalculateNZP(MemoryControlUnit.MDR);
+        
         if (logger.IsEnabled(LogLevel.Debug))
         {
             logger.LogDebug("LEA {dr:X} into R{dr}", ALU.RegisterFile[dr], dr);
@@ -234,14 +246,16 @@ public class CPU
 
     private void Store()
     {
+        // ST
         var sr = (ControlUnit.IR >> 9) & 0x7;
         MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
         MemoryControlUnit.MDR = ALU.RegisterFile[sr];
-        MemoryControlUnit.WriteSignal(!ControlUnit.Privileged);
+        MemoryControlUnit.WriteSignal(!ControlUnit.Privileged); 
     }
 
     private void StoreIndirect()
     {
+        // STI
         var sr = (ControlUnit.IR >> 9) & 0x7;
         MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
         MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
@@ -251,13 +265,10 @@ public class CPU
 
     private void StoreRegister()
     {
+        // STR
         var sr = (ControlUnit.IR >> 9) & 0x7;
         var baseR = (ControlUnit.IR >> 6) & 0x7;
-        ushort offset6 = (ushort)(ControlUnit.IR & 0x3F);
-        if ((offset6 & 0x20) == 0x20)
-        {
-            offset6 |= 0xFFC0; // sign extend
-        }
+        ushort offset6 = EvaluatePCRelativeAddress6();
         MemoryControlUnit.MAR = (ushort)(ALU.RegisterFile[baseR] + offset6);
         MemoryControlUnit.MDR = ALU.RegisterFile[sr];
         MemoryControlUnit.WriteSignal(!ControlUnit.Privileged);
@@ -270,6 +281,11 @@ public class CPU
             || (ControlUnit.P && ((ControlUnit.IR >> 9) & 0x1) == 1))
         {
             ControlUnit.PC = EvaluatePCRelativeAddress9();
+
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.LogDebug("BR to {addr:X}", ControlUnit.PC);
+            }
         }
     }
 
@@ -282,6 +298,11 @@ public class CPU
         {
             ControlUnit.Privileged = false;
         }
+
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("JMP to R{baseR} with {addr:X}", baseR, ControlUnit.PC);
+        }
     }
 
     private void Trap()
@@ -292,10 +313,16 @@ public class CPU
         ControlUnit.Privileged = true;
         MemoryControlUnit.ReadSignal(true);
         ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
+
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("TRAP [{v}] to {addr:X}", trapVector, ControlUnit.PC);
+        }
     }
 
     private void JumpToSubroutine()
     {
+        // JSR
         var longFlag = (ControlUnit.IR >> 11) & 0x1;
         var baseR = (ControlUnit.IR >> 6) & 0x7;
         if (longFlag == 1)
@@ -303,17 +330,33 @@ public class CPU
             ushort pcOffset11 = (ushort)(ControlUnit.IR & 0x7FF);
             ALU.RegisterFile[7] = (short)ControlUnit.PC;
             ControlUnit.PC += pcOffset11;
+
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.LogDebug("JSR (short) to {addr:X}", ControlUnit.PC);
+            }
         }
         else
         {
             ControlUnit.PC = (ushort)ALU.RegisterFile[baseR];
+
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.LogDebug("JSRR (long) to {addr:X}", ControlUnit.PC);
+            }
         }
     }
 
     private void ReturnFromInterrupt()
     {
         ControlUnit.PC = (ushort)ALU.RegisterFile[7];
+
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("RTI to {addr:X}", ControlUnit.PC);
+        }
     }
+
     private void CalculateNZP(short v)
     {
         ControlUnit.N = v < 0;
