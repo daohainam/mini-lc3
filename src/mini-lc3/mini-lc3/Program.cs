@@ -8,7 +8,7 @@ builder.AddLogging(builder => builder.AddSimpleConsole(options =>
     options.SingleLine = true;
     options.TimestampFormat = "HH:mm:ss ";
     options.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
-}).SetMinimumLevel(LogLevel.Debug));
+}).SetMinimumLevel(LogLevel.Information));
 var machine = builder.Build();
 
 var cancellationTokenSource = new CancellationTokenSource();

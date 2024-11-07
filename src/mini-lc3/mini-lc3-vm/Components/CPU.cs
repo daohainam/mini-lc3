@@ -209,6 +209,7 @@ public class CPU
 
     private void LoadIndirect()
     {
+        // LDI
         var dr = (ControlUnit.IR >> 9) & 0x7;
         MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
         MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
@@ -280,6 +281,7 @@ public class CPU
         var sr = (ControlUnit.IR >> 9) & 0x7;
         MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
         MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
+        MemoryControlUnit.MAR = (ushort)MemoryControlUnit.MDR;
         MemoryControlUnit.MDR = ALU.RegisterFile[sr];
         MemoryControlUnit.WriteSignal(!ControlUnit.Privileged);
 
