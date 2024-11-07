@@ -25,7 +25,7 @@ public class ControlUnit
     }
     public bool Privileged
     {
-        get => (PSR & 0x80) == 0x4;
+        get => (PSR & 0x80) == 0x80;
         set => PSR = (ushort)(value ? PSR | 0x80 : PSR & ~0x80);
     }
     public ushort Priority
