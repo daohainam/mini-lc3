@@ -12,7 +12,6 @@ namespace mini_lc3_vm.OS
         // remember to reencode JMPT with 0xC1C1
 
         public static readonly ushort[] OsImage = [
-            0x0000,
             0x0264,
             0x0264,
             0x0264,

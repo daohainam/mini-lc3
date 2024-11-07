@@ -2,7 +2,7 @@
   "profiles": {
     "mini-lc3": {
       "commandName": "Project",
-      "commandLineArgs": "hello-world.hex"
+      "commandLineArgs": "testfiles\\helloworld.hex"
     }
   }
 }

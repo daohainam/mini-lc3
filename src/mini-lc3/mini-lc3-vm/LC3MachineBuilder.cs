@@ -5,6 +5,7 @@ using mini_lc3_vm.Devices;
 using mini_lc3_vm.ExecuteableFile;
 using mini_lc3_vm.OS;
 using mini_lc3_vm.ProgramLoaders;
+using System.Linq;
 
 namespace mini_lc3_vm;
 
@@ -74,8 +75,6 @@ public class LC3MachineBuilder: ILC3MachineBuilder
                 builder.UseMonitor();
             }
         }
-
-        builder.services.AddLogging(builder => builder.AddConsole());
 
         return builder;
     }

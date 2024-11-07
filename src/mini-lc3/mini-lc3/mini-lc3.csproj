@@ -14,4 +14,13 @@
     <ProjectReference Include="..\mini-lc3-vm\mini-lc3-vm.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="testfiles\character-count.hex">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="testfiles\helloworld.hex">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

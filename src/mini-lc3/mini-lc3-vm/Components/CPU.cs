@@ -170,10 +170,25 @@ public class CPU
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
         MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("LD R{dr} with address in {addr}", dr, MemoryControlUnit.MAR);
+        }
         MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
+        MemoryControlUnit.MAR = (ushort)MemoryControlUnit.MDR;
+        MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug(" [{addr}] contains {value}", MemoryControlUnit.MAR, MemoryControlUnit.MDR);
+        }
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
 
         CalculateNZP(MemoryControlUnit.MDR);
+
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("LD R{dr} with {value} from {addr}", dr, ALU.RegisterFile[dr], MemoryControlUnit.MAR);
+        }
     }
 
     private void LoadIndirect()
@@ -184,6 +199,10 @@ public class CPU
         ALU.RegisterFile[dr] = MemoryControlUnit.MDR;
 
         CalculateNZP(MemoryControlUnit.MDR);
+
+        if (logger.IsEnabled(LogLevel.Debug)) {
+            logger.LogDebug("LDI R{dr} with {value} from {addr}", dr, ALU.RegisterFile[dr], MemoryControlUnit.MAR);
+        }
     }
 
     private void LoadRegister()
@@ -270,9 +289,9 @@ public class CPU
         var trapVector = (ushort)(ControlUnit.IR & 0xFF);
         ALU.RegisterFile[7] = (short)ControlUnit.PC;
         MemoryControlUnit.MAR = trapVector;
-        MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
-        ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
         ControlUnit.Privileged = true;
+        MemoryControlUnit.ReadSignal(true);
+        ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
     }
 
     private void JumpToSubroutine()

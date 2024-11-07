@@ -7,13 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mini-lc3-vm", "mini-lc3-vm\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mini-lc3", "mini-lc3\mini-lc3.csproj", "{4D14821B-AA50-490F-8CD0-22C297BEDCA9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{CA0AF085-820E-468F-891E-6C78EAD3B67C}"
-	ProjectSection(SolutionItems) = preProject
-		..\..\samples\character-count.bin = ..\..\samples\character-count.bin
-		..\..\samples\character-count.hex = ..\..\samples\character-count.hex
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mini-lc3-tests", "mini-lc3-tests\mini-lc3-tests.csproj", "{325E4D1F-E805-44B1-898D-1F455D199692}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mini-lc3-tests", "mini-lc3-tests\mini-lc3-tests.csproj", "{325E4D1F-E805-44B1-898D-1F455D199692}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
