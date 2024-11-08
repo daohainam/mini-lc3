@@ -84,8 +84,8 @@ public class MemoryControlUnit: ILC3MemoryControlUnit, IMapableMemory
     {
         if (isUserMode)
         {
-            var block = (MPR >> 12) & 0xF;
-            if ((MPR & block) == 0)
+            var block = (MAR >> 12) & 0xF;
+            if (((MPR >> block) & 1) == 0)
             {
                 throw new MemoryAccessViolationException(MAR);
             }

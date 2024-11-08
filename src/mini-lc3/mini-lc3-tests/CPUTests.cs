@@ -6,7 +6,7 @@ namespace mini_lc3_tests
         private Memory _memory;
         private MemoryControlUnit _memoryControlUnit;
 
-        private const ushort DefaultPCAddress = CPU.DefaultPCAddress;
+        private const ushort UserSpaceAddress = CPU.UserSpaceAddress;
 
         public CPUTests()
         {
@@ -27,11 +27,12 @@ namespace mini_lc3_tests
         public void Fetch_And_Execute_AddInstruction()
         {
             _cpu.Boot();
+            _cpu.ControlUnit.PC = CPU.UserSpaceAddress;
             _memory.LoadInstructions([0x102A]); // ADD R0, R0, #10
             _cpu.FetchAndExecute();
 
             _cpu.ControlUnit.IR.Should().Be(0x102A);
-            _cpu.ControlUnit.PC.Should().Be(DefaultPCAddress + 1);
+            _cpu.ControlUnit.PC.Should().Be(UserSpaceAddress + 1);
             _cpu.ALU.RegisterFile.R0.Should().Be(10);
         }
 
@@ -39,6 +40,7 @@ namespace mini_lc3_tests
         public void Execute_AddInstruction()
         {
             _cpu.Boot();
+            _cpu.ControlUnit.PC = CPU.UserSpaceAddress;
             _memory.LoadInstructions([0x1021]); // ADD R0, R0, #1
             _cpu.ALU.RegisterFile[0] = 1;
             _cpu.FetchAndExecute();
@@ -50,6 +52,7 @@ namespace mini_lc3_tests
         public void Execute_AndInstruction()
         {
             _cpu.Boot();
+            _cpu.ControlUnit.PC = CPU.UserSpaceAddress;
             _memory.LoadInstructions([0x5021]); // AND R0, R0, #1
             _cpu.ALU.RegisterFile[0] = 3;
             _cpu.FetchAndExecute();
@@ -61,6 +64,7 @@ namespace mini_lc3_tests
         public void Execute_NotInstruction()
         {
             _cpu.Boot();
+            _cpu.ControlUnit.PC = CPU.UserSpaceAddress;
             _memory.LoadInstructions([0x903F]); // NOT R0, R0
             _cpu.ALU.RegisterFile[0] = 0;
             _cpu.FetchAndExecute();
@@ -115,6 +119,7 @@ namespace mini_lc3_tests
         public void Execute_JumpInstruction()
         {
             _cpu.Boot();
+            _cpu.ControlUnit.PC = CPU.UserSpaceAddress;
             _memory.LoadInstructions([0xC000]); // JMP R0
             _cpu.ALU.RegisterFile[0] = 0x3000;
             _cpu.FetchAndExecute();
@@ -126,6 +131,7 @@ namespace mini_lc3_tests
         public void Execute_TrapInstruction()
         {
             _cpu.Boot();
+            _cpu.ControlUnit.PC = CPU.UserSpaceAddress;
             _memory.LoadInstructions([0b_1111_0000_0010_0101]);
             _memoryControlUnit.Write(0x25, 0x1234, !_cpu.ControlUnit.Privileged);
             _cpu.FetchAndExecute();

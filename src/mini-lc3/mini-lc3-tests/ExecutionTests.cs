@@ -36,6 +36,7 @@ namespace mini_lc3_tests
                 0xF025
             };
 
+            _machine.CPU.ControlUnit.PC = CPU.UserSpaceAddress;
             _machine.Memory.LoadInstructions(instructions);
             _machine.Memory.LoadInstructions([0x1F1F], 0x25); // HALT (TRAP x25)
             _machine.CPU.FetchAndExecuteUntilHalt();
@@ -87,6 +88,7 @@ namespace mini_lc3_tests
                         .END
              */
 
+            _machine.CPU.ControlUnit.PC = CPU.UserSpaceAddress;
             _machine.Memory.LoadInstructions(instructions);
             _machine.Memory.LoadInstructions([0x1F1F], 0x25); // HALT (TRAP x25)
             _machine.CPU.FetchAndExecuteUntilHalt();

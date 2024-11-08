@@ -42,7 +42,7 @@ namespace mini_lc3_vm.Components
             set => _memory[index] = value;
         }
 
-        public void LoadInstructions(ushort[] instructions, int address = CPU.DefaultPCAddress)
+        public void LoadInstructions(ushort[] instructions, int address = CPU.UserSpaceAddress)
         {
             ArgumentNullException.ThrowIfNull(instructions, nameof(instructions));
             ArgumentOutOfRangeException.ThrowIfLessThan(address, 0, nameof(address));

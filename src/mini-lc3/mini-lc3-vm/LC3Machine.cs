@@ -23,7 +23,7 @@ public class LC3Machine: ILC3Machine
         MemoryControlUnit = new(Memory, loggingFactory != null ? loggingFactory.CreateLogger<MemoryControlUnit>() : NullLogger<MemoryControlUnit>.Instance);
         CPU = new(MemoryControlUnit, loggingFactory != null ? loggingFactory.CreateLogger<CPU>() : NullLogger<CPU>.Instance);
 
-        AttachDevice(cpu); // map MCR register 
+        AttachDevice(CPU); // map MCR register 
 
         Memory.Reset();
     }
