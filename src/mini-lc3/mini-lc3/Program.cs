@@ -1,5 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
+using mini_lc3;
 using mini_lc3_vm;
+
+if (!args.Contains("--no-logo"))
+{ 
+    Logo.Print();
+}
 
 var builder = LC3MachineBuilder.Create(args);
 builder.AddLogging(builder => builder.AddSimpleConsole(options =>
@@ -26,5 +32,6 @@ Console.CancelKeyPress += (sender, e) =>
 };
 
 Console.WriteLine("Press Ctrl-C to shutdown machine...");
+Console.WriteLine();
 machine.Run(cancellationToken);
 

@@ -40,13 +40,16 @@ public class CPU: IAttachable, IMappedMemory
     {
         ControlUnit.PC = DefaultPCAddress;
         ControlUnit.Privileged = true;
+
         for (int i = 0; i < 8; i++)
             ALU.RegisterFile[i] = 0;
+
+        ControlUnit.ClockEnable = true;
     }
 
     public void Run(CancellationToken cancellationToken)
     {
-        while (!cancellationToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested && ControlUnit.ClockEnable)
         {
             Fetch();
             var opcode = Decode();
