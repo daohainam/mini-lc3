@@ -3,13 +3,15 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace mini_lc3_vm.Components;
 
-public class CPU
+public class CPU: IAttachable
 {
     public const ushort DefaultPCAddress = 0x3000;
 
     public ArithmeticLogicUnit ALU { get; } 
     public ControlUnit ControlUnit { get; }
     public MemoryControlUnit MemoryControlUnit { get; }
+
+    public bool IsAttached { get; } = false;
 
     private readonly ILogger<CPU> logger;
 
@@ -426,6 +428,16 @@ public class CPU
             pcOffset9 |= 0xFE00;
         }
         return (ushort)(ControlUnit.PC + (short)pcOffset9);
+    }
+
+    public void Attach(ILC3Machine lC3Machine)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Detach()
+    {
+        throw new NotImplementedException();
     }
     #endregion
 }
