@@ -13,21 +13,19 @@ public class CPU: IAttachable, IMappedMemory
     public const ushort MPR_ADDRESS = 0xFE12;
     public const ushort MCR_ADDRESS = 0xFFFE;
     public const ushort MCC_ADDRESS = 0xFFFF;
-
-
     public ArithmeticLogicUnit ALU { get; } 
     public ControlUnit ControlUnit { get; }
     public MemoryControlUnit MemoryControlUnit { get; }
 
     public bool IsAttached { get; private set; } = false;
 
-    private readonly ILogger<CPU> logger;
+    private readonly ILogger logger;
 
     public CPU(MemoryControlUnit memoryControlUnit): this(memoryControlUnit, NullLogger<CPU>.Instance)
     {
     }
 
-    public CPU(MemoryControlUnit memoryControlUnit, ILogger<CPU> logger)
+    public CPU(MemoryControlUnit memoryControlUnit, ILogger logger)
     {
         ALU = new();
         ControlUnit = new();
@@ -51,10 +49,15 @@ public class CPU: IAttachable, IMappedMemory
     {
         while (!cancellationToken.IsCancellationRequested && ControlUnit.ClockEnable)
         {
-            Fetch();
-            var opcode = Decode();
-            Execute(opcode);
+            Step();
         }
+    }
+
+    public void Step()
+    {
+        Fetch();
+        var opcode = Decode();
+        Execute(opcode);
     }
 
     public Opcodes Decode() { 
