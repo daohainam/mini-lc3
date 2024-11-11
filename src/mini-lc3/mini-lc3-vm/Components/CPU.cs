@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using mini_lc3_vm.Exceptions;
+using System.Buffers.Text;
 
 namespace mini_lc3_vm.Components;
 
@@ -417,7 +418,17 @@ public class CPU: IAttachable, IMappedMemory
             throw new PrivilegeModeException();
         }
 
-        ControlUnit.PC = (ushort)ALU.RegisterFile[7];
+        ushort r6 = (ushort)ALU.RegisterFile[6];
+        MemoryControlUnit.MAR = r6;
+        MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
+        ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
+        r6++;
+        MemoryControlUnit.MAR = r6;
+        MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
+        ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
+        r6++;
+
+        ALU.RegisterFile[6] = (short)r6;
 
         if (logger.IsEnabled(LogLevel.Debug))
         {
