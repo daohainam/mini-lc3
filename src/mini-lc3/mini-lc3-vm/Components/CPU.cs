@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using mini_lc3_vm.Exceptions;
 
 namespace mini_lc3_vm.Components;
 
@@ -408,6 +409,11 @@ public class CPU: IAttachable, IMappedMemory
 
     private void ReturnFromInterrupt()
     {
+        if (!ControlUnit.Privileged)
+        {
+            throw new PrivilegeModeException();
+        }
+
         ControlUnit.PC = (ushort)ALU.RegisterFile[7];
 
         if (logger.IsEnabled(LogLevel.Debug))
