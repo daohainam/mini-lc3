@@ -533,7 +533,10 @@ OS_START
 	LD R0, TIM_INIT
 	STI R0, OS_TMI
 
-	; return to user code with Privilege = user mode
+	; init stack pointer
+	LD R6, USER_STACK_INIT
+
+	; return to user code with Privilege = mode user
 	LEA R6, USER_CODE_ADDR
 	RTI	
 
@@ -545,7 +548,7 @@ OS_KBDR	.FILL xFE02		; keyboard data register
 OS_DSR	.FILL xFE04		; display status register
 OS_DDR	.FILL xFE06		; display data register
 OS_TR	.FILL xFE08		; timer register
-OS_TMI  .FILL xFE0A     ; timer interval register
+OS_TMI  .FILL xFE0A     	; timer interval register
 OS_MPR	.FILL xFE12		; memory protection register
 OS_MCR	.FILL xFFFE		; machine control register
 
@@ -559,12 +562,13 @@ OS_SAVE_R6      .BLKW 1
 OS_SAVE_R7      .BLKW 1
 OS_OUT_SAVE_R1  .BLKW 1
 OS_IN_SAVE_R7   .BLKW 1
+OS_SAVE_SP	.FILL x3000	; save stack pointer, initially contains system stack pointer
                 	
 MASK_HI         .FILL x7FFF
 LOW_8_BITS      .FILL x00FF
 TIM_INIT        .FILL #40
-;MPR_INIT		.FILL xFFFF	; user can access everything
-MPR_INIT		.FILL x0FF8	; user can access x3000 to xbfff
+MPR_INIT	.FILL x0FF8	; user can access x3000 to xbfff
+USER_STACK_INIT	.FILL 0xFE00	; user stack, just right before I/O mapping memory part
         
 ;;; GETC - Read a single character of input from keyboard device into R0
 TRAP_GETC
@@ -573,6 +577,7 @@ TRAP_GETC
 	LDI R0,OS_KBDR		; read it and return
 	RET
 
+        
 ;;; OUT - Write the character in R0 to the console.
 TRAP_OUT
 	ST R1,OS_OUT_SAVE_R1	; save R1
