@@ -2,7 +2,7 @@
 
 namespace mini_lc3_vm.Components;
 
-[DebuggerDisplay("PC = {PC}, IR = {IR}, PSR = {PSR}")]
+[DebuggerDisplay("PC = {PC}, IR = {IR}, PSR = {PSR}, MCR = {MCR}, MCC = {MCR}, TimerCycleInterval = {TimerCycleInterval}")]
 public class ControlUnit
 {
     public ushort IR { get; set; } // Instruction Register
