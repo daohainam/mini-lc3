@@ -60,6 +60,20 @@ public class CPU: IAttachable, IMappedMemory
         Fetch();
         var opcode = Decode();
         Execute(opcode);
+
+        ControlUnit.MCC++; // increase Machine Cycle Counter every cycle
+        if (ControlUnit.ClockEnable && ControlUnit.TimerInterruptEnable && ControlUnit.MCC > ControlUnit.TimerCycleInterval) 
+        {
+            TryFireTimerInterrupt();
+            ControlUnit.MCC = 0;
+        }
+    }
+    private void TryFireTimerInterrupt()
+    {
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("Firing timer interrupt...");
+        }
     }
 
     public Opcodes Decode() { 
