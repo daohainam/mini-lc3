@@ -5,11 +5,11 @@ namespace mini_lc3_vm.Components;
 [DebuggerDisplay("PC = {PC}, IR = {IR}, PSR = {PSR}")]
 public class ControlUnit
 {
-    public ushort IR { get; set; }
-    public ushort PC { get; set; }
-    public ushort PSR { get; set; }
-    public ushort MCR { get; set; }
-    public ushort MCC { get; set; } 
+    public ushort IR { get; set; } // Instruction Register
+    public ushort PC { get; set; } // Program Counter
+    public ushort PSR { get; set; } // Processor Status Register
+    public ushort MCR { get; set; } = 0b_1000_0000_0000_0000; // clock enabled, timer interrupt disabled, timer cycle interval = 0
+    public ushort MCC { get; set; } = 0b_0000_0000_0000_0000; // timer cycle count = 0
     public bool P
     {
         get => (PSR & 0x1) == 0x1;
