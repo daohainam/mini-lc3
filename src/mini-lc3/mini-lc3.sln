@@ -9,6 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mini-lc3", "mini-lc3\mini-l
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mini-lc3-tests", "mini-lc3-tests\mini-lc3-tests.csproj", "{325E4D1F-E805-44B1-898D-1F455D199692}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OS", "OS", "{0BC9A14D-2648-456F-8942-BFEFDAA24747}"
+	ProjectSection(SolutionItems) = preProject
+		mini-lc3-os\src\mini-lc3-os.asm = mini-lc3-os\src\mini-lc3-os.asm
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

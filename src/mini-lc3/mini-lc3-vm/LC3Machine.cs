@@ -15,7 +15,7 @@ public class LC3Machine: ILC3Machine
     public MemoryControlUnit MemoryControlUnit { get; }
     public IEnumerable<IAttachable> Devices => devices;
 
-    public LC3Machine(ILoggerFactory? loggingFactory): this("LC3", loggingFactory)
+    public LC3Machine(ILoggerFactory? loggingFactory = null): this("LC3", loggingFactory)
     {
     }
     public LC3Machine(string name, ILoggerFactory? loggingFactory = null)

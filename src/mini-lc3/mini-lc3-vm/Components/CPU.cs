@@ -439,7 +439,7 @@ public class CPU: IAttachable, IMappedMemory
         r6++;
         MemoryControlUnit.MAR = r6;
         MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
-        ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
+        ControlUnit.PSR = (ushort)MemoryControlUnit.MDR;
         r6++;
 
         ALU.RegisterFile[6] = (short)r6;

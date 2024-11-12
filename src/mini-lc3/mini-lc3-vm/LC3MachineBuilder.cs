@@ -13,6 +13,7 @@ public class LC3MachineBuilder: ILC3MachineBuilder
 {
     private bool useKeyboard = false;
     private bool useMonitor = false;
+    private ushort[] osImage = EmbeddedOS.OsImage;
     private IExecutableImage? executableImage;
     private ServiceCollection services = new();
 
@@ -35,7 +36,7 @@ public class LC3MachineBuilder: ILC3MachineBuilder
             machine.AttachDevice(new LC3Monitor());
         }
 
-        machine.Memory.LoadInstructions(EmbeddedOS.OsImage, 0);
+        machine.Memory.LoadInstructions(osImage, 0);
 
         executableImage ??= new ExecutableImage(0x3000, Loop);
         machine.Memory.LoadInstructions(executableImage.Instructions, executableImage.LoadAddress);
@@ -64,6 +65,21 @@ public class LC3MachineBuilder: ILC3MachineBuilder
                 {
                     noMonitor = true;
                 }
+                else if (args[i].StartsWith("--os="))
+                {
+                    if (!LoadOSImage(args[i][5..], out ushort[] image))
+                    {
+                        throw new ArgumentException("Invalid OS image");
+                    }
+                    else
+                    {
+                        builder.osImage = image;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Unknown argument: {args[i]}");
+                }
             }
 
             if (!noKeyboard)
@@ -77,6 +93,20 @@ public class LC3MachineBuilder: ILC3MachineBuilder
         }
 
         return builder;
+    }
+
+    private static bool LoadOSImage(string fileName, out ushort[] image)
+    {
+        try
+        {
+            image = LoaderFactory.GetLoader(fileName).LoadExecutableFile().Instructions;
+            return true;
+        }
+        catch
+        {
+            image = [];
+            return false;
+        }
     }
 
     public ILC3MachineBuilder AddLogging(Action<ILoggingBuilder> configure)
