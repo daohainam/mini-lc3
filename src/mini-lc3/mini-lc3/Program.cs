@@ -1,11 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-using mini_lc3;
-using mini_lc3_vm;
-
-if (!args.Contains("--no-logo"))
+﻿if (!args.Contains("--no-logo"))
 { 
     Logo.Print();
 }
+
+bool isDebug = args.Contains("--logging-debug");
 
 var builder = LC3MachineBuilder.Create(args);
 builder.AddLogging(builder => builder.AddSimpleConsole(options =>
@@ -14,7 +12,8 @@ builder.AddLogging(builder => builder.AddSimpleConsole(options =>
     options.SingleLine = true;
     options.TimestampFormat = "HH:mm:ss ";
     options.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
-}).SetMinimumLevel(LogLevel.Debug));
+}).SetMinimumLevel(isDebug ? LogLevel.Debug : LogLevel.Information));
+
 var machine = builder.Build();
 
 var cancellationTokenSource = new CancellationTokenSource();

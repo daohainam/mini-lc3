@@ -533,7 +533,7 @@ OS_START
 	LD R0, TIM_INIT
 	STI R0, OS_TMI
 
-	; return to user code with Privilege = mode user
+	; return to user code with Privilege = user mode
 	LEA R6, USER_CODE_ADDR
 	RTI	
 
@@ -573,7 +573,6 @@ TRAP_GETC
 	LDI R0,OS_KBDR		; read it and return
 	RET
 
-        
 ;;; OUT - Write the character in R0 to the console.
 TRAP_OUT
 	ST R1,OS_OUT_SAVE_R1	; save R1
@@ -691,7 +690,7 @@ BAD_TRAP
 ;;; actually be any interrupts, so this will never actually get called.
 BAD_INT		RTI
 
-STARTING_MSG	.STRINGZ "Starting mini-lc3-os\n..."
+STARTING_MSG	.STRINGZ "Starting mini-lc3-os...\n"
 TRAP_IN_MSG		.STRINGZ "\nInput a character> "
 
 .END
