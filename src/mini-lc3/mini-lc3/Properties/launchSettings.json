@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "mini-lc3": {
-      "commandName": "Project",
-      "commandLineArgs": "testfiles\\helloworld.hex"
-    }
-  }
-}

@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/src/mini-lc3/mini-lc3-os/src/mini-lc3-os.lst
+/src/mini-lc3/mini-lc3-os/src/mini-lc3-os.sym
+/src/mini-lc3/mini-lc3-os/src/mini-lc3-os.bin
+/src/mini-lc3/mini-lc3-os/src/mini-lc3-os.hex
+/src/mini-lc3/mini-lc3/Properties/launchSettings.json
