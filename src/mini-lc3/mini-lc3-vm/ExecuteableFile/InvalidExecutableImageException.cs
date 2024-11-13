@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace mini_lc3_vm.ExecuteableFile
+namespace mini_lc3_vm.ExecuteableFile;
+
+public class InvalidExecutableImageException : Exception
 {
-    public class InvalidExecutableImageException : Exception
+    public InvalidExecutableImageException(string message) : base(message)
     {
-        public InvalidExecutableImageException(string message) : base(message)
-        {
-        }
     }
 }

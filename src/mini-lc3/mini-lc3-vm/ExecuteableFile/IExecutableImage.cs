@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace mini_lc3_vm.ExecuteableFile
+namespace mini_lc3_vm.ExecuteableFile;
+
+public interface IExecutableImage
 {
-    public interface IExecutableImage
-    {
-        ushort LoadAddress { get; }
-        ushort[] Instructions { get; }
-    }
+    ushort LoadAddress { get; }
+    ushort[] Instructions { get; }
 }

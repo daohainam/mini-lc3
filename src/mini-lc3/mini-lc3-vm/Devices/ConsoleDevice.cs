@@ -5,36 +5,35 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace mini_lc3_vm.Devices
+namespace mini_lc3_vm.Devices;
+
+public interface IKeyboardDevice
 {
-    public interface IKeyboardDevice
-    {
-        bool Ready { get; }
+    bool Ready { get; }
 
-        byte Read();
+    byte Read();
+}
+
+public interface IMonitorDevice
+{
+    bool Ready { get; }
+
+    void Write(byte c);
+}
+
+public class ConsoleDevice : IKeyboardDevice, IMonitorDevice
+{
+    public byte Read()
+    {
+        return (byte)(Console.ReadKey().KeyChar & 0xFF);
     }
 
-    public interface IMonitorDevice
+    public void Write(byte c)
     {
-        bool Ready { get; }
-
-        void Write(byte c);
+        Console.Write((char)c);
     }
 
-    public class ConsoleDevice : IKeyboardDevice, IMonitorDevice
-    {
-        public byte Read()
-        {
-            return (byte)(Console.ReadKey().KeyChar & 0xFF);
-        }
+    public bool Ready => true;
 
-        public void Write(byte c)
-        {
-            Console.Write((char)c);
-        }
-
-        public bool Ready => true;
-
-        public static readonly ConsoleDevice Instance = new();
-    }
+    public static readonly ConsoleDevice Instance = new();
 }

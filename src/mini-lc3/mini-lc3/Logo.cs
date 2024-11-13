@@ -1,10 +1,10 @@
-﻿namespace mini_lc3
+﻿namespace mini_lc3;
+
+internal class Logo
 {
-    internal class Logo
+    public static void Print()
     {
-        public static void Print()
-        {
-            Console.WriteLine(@"
+        Console.WriteLine(@"
   __  __ _____ _   _ _____      _      _____ ____  
  |  \/  |_   _| \ | |_   _|    | |    / ____|___ \ 
  | \  / | | | |  \| | | |______| |   | |      __) |
@@ -13,6 +13,5 @@
  |_|  |_|_____|_| \_|_____|    |______\_____|____/ 
                                                    
 ");
-        }
     }
 }

@@ -2,66 +2,65 @@
 using System.Collections.Concurrent;
 using System.Text;
 
-namespace mini_lc3_tests.Devices
+namespace mini_lc3_tests.Devices;
+
+internal class MemoryConsoleDevice : IKeyboardDevice, IMonitorDevice
 {
-    internal class MemoryConsoleDevice : IKeyboardDevice, IMonitorDevice
+    private ConcurrentQueue<byte> Input { get; } = new();
+    private ConcurrentQueue<byte> Output { get; } = new();
+
+    bool IMonitorDevice.Ready => true;
+
+    bool IKeyboardDevice.Ready => !Input.IsEmpty;
+
+    public byte Read()
     {
-        private ConcurrentQueue<byte> Input { get; } = new();
-        private ConcurrentQueue<byte> Output { get; } = new();
-
-        bool IMonitorDevice.Ready => true;
-
-        bool IKeyboardDevice.Ready => !Input.IsEmpty;
-
-        public byte Read()
+        if (Input.IsEmpty)
         {
-            if (Input.IsEmpty)
-            {
-                throw new InvalidOperationException("No input available");
-            }
-            
-            if (!Input.TryDequeue(out var c))
-            {
-                throw new InvalidOperationException("Failed to read input");
-            }
-
-            return c;
+            throw new InvalidOperationException("No input available");
+        }
+        
+        if (!Input.TryDequeue(out var c))
+        {
+            throw new InvalidOperationException("Failed to read input");
         }
 
-        public void Write(byte c)
+        return c;
+    }
+
+    public void Write(byte c)
+    {
+        Output.Enqueue(c);
+    }
+
+    public void SimulateKeyboardTyping(string s)
+    {
+        ArgumentNullException.ThrowIfNull(s);
+
+        if (s.Length == 0)
         {
-            Output.Enqueue(c);
+            return;
         }
 
-        public void SimulateKeyboardTyping(string s)
+        foreach (var c in s)
         {
-            ArgumentNullException.ThrowIfNull(s);
+            Input.Enqueue((byte)c);
+        }
+    }
 
-            if (s.Length == 0)
+    public string GetOutput()
+    {
+        var sb = new StringBuilder();
+        while (!Output.IsEmpty)
+        {
+            if (!Output.TryDequeue(out var c))
             {
-                return;
+                throw new InvalidOperationException("Failed to read output");
             }
 
-            foreach (var c in s)
-            {
-                Input.Enqueue((byte)c);
-            }
+            sb.Append((char)c);
         }
 
-        public string GetOutput()
-        {
-            var sb = new StringBuilder();
-            while (!Output.IsEmpty)
-            {
-                if (!Output.TryDequeue(out var c))
-                {
-                    throw new InvalidOperationException("Failed to read output");
-                }
-
-                sb.Append((char)c);
-            }
-
-            return sb.ToString();
-        }
+        return sb.ToString();
     }
 }
