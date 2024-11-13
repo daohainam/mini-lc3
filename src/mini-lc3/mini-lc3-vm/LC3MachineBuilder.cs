@@ -51,7 +51,11 @@ public class LC3MachineBuilder: ILC3MachineBuilder
 
         if (args.Length > 0)
         {
-            builder.LoadProgram(args.First());
+            var programName = args.Where(args => !args.StartsWith("--")).FirstOrDefault();
+            if (programName is not null)
+            {
+                builder.LoadProgram(programName);
+            }
 
             bool noKeyboard = false;
             bool noMonitor = false;

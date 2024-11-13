@@ -1,19 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>mini_lc3</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PublishAot>true</PublishAot>
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\mini-lc3-vm\mini-lc3-vm.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="testfiles\character-count.hex">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -22,5 +19,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
 </Project>
