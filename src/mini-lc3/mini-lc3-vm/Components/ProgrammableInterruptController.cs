@@ -1,7 +1,7 @@
 ﻿namespace mini_lc3_vm.Components;
 public class ProgrammableInterruptController
 {
-    private readonly Queue<byte>[] interruptRequests; // 8 interrupt vectors
+    private readonly Queue<byte>[] interruptRequests; // 8 levels of priority, each level can have multiple interrupts
     private Lock _lock = new();
     public bool IsMasked { get; set; } = false;
 
