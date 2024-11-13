@@ -13,6 +13,7 @@ public class LC3Machine: ILC3Machine
     public CPU CPU { get; }
     public Memory Memory { get; }
     public MemoryControlUnit MemoryControlUnit { get; }
+    public ProgrammableInterruptController PIC { get; }
     public IEnumerable<IAttachable> Devices => devices;
 
     public LC3Machine(ILoggerFactory? loggingFactory = null): this("LC3", loggingFactory)
@@ -24,7 +25,9 @@ public class LC3Machine: ILC3Machine
 
         Memory = new(loggingFactory != null ? loggingFactory.CreateLogger<Memory>() : NullLogger<Memory>.Instance);
         MemoryControlUnit = new(Memory, loggingFactory != null ? loggingFactory.CreateLogger<MemoryControlUnit>() : NullLogger<MemoryControlUnit>.Instance);
-        CPU = new(MemoryControlUnit, loggingFactory != null ? loggingFactory.CreateLogger(Name + ".CPU") : NullLogger<CPU>.Instance);
+        PIC = new();
+
+        CPU = new(MemoryControlUnit, PIC, loggingFactory != null ? loggingFactory.CreateLogger(Name + ".CPU") : NullLogger<CPU>.Instance);
 
         AttachDevice(CPU); // map MCR register 
 

@@ -5,6 +5,7 @@ namespace mini_lc3_tests
         private CPU _cpu;
         private Memory _memory;
         private MemoryControlUnit _memoryControlUnit;
+        private ProgrammableInterruptController _pic;
 
         private const ushort UserSpaceAddress = CPU.UserSpaceAddress;
 
@@ -13,7 +14,9 @@ namespace mini_lc3_tests
             _memory = new Memory();
             _memory.Reset();
             _memoryControlUnit = new MemoryControlUnit(_memory);
-            _cpu = new CPU(_memoryControlUnit);
+            _pic = new ProgrammableInterruptController();
+
+            _cpu = new CPU(_memoryControlUnit, _pic);
         }
 
         [Fact]

@@ -11,5 +11,6 @@ namespace mini_lc3_vm
         IEnumerable<IAttachable> Devices { get; }
 
         void Run(CancellationToken cancellationToken);
+        void Step();
     }
 }

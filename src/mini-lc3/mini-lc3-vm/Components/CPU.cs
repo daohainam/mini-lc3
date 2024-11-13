@@ -18,20 +18,22 @@ public class CPU: IAttachable, IMappedMemory
     public ArithmeticLogicUnit ALU { get; } 
     public ControlUnit ControlUnit { get; }
     public MemoryControlUnit MemoryControlUnit { get; }
+    public ProgrammableInterruptController PIC { get; }
 
     public bool IsAttached { get; private set; } = false;
 
     private readonly ILogger logger;
 
-    public CPU(MemoryControlUnit memoryControlUnit): this(memoryControlUnit, NullLogger<CPU>.Instance)
+    public CPU(MemoryControlUnit memoryControlUnit, ProgrammableInterruptController pic) : this(memoryControlUnit, pic, NullLogger<CPU>.Instance)
     {
     }
 
-    public CPU(MemoryControlUnit memoryControlUnit, ILogger logger)
+    public CPU(MemoryControlUnit memoryControlUnit, ProgrammableInterruptController pic, ILogger logger)
     {
         ALU = new();
         ControlUnit = new();
         MemoryControlUnit = memoryControlUnit;
+        PIC = pic;
 
         this.logger = logger;
     }
@@ -66,6 +68,11 @@ public class CPU: IAttachable, IMappedMemory
         {
             TryFireTimerInterrupt();
             ControlUnit.MCC = 0;
+        }
+
+        if (PIC.AcknowledgeInterrupt((PriorityLevels)ControlUnit.Priority, out byte? interruptVector))
+        {
+            // jump to the interrupt handler
         }
     }
     private void TryFireTimerInterrupt()
