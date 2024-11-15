@@ -15,6 +15,9 @@ public class CPU: IAttachable, IMappedMemory
     public const ushort MPR_ADDRESS = 0xFE12;
     public const ushort MCR_ADDRESS = 0xFFFE;
     public const ushort MCC_ADDRESS = 0xFFFF;
+
+    public const byte TIMER_INTERRUPT = 2;
+
     public ArithmeticLogicUnit ALU { get; } 
     public ControlUnit ControlUnit { get; }
     public MemoryControlUnit MemoryControlUnit { get; }
@@ -64,23 +67,33 @@ public class CPU: IAttachable, IMappedMemory
         Execute(opcode);
 
         ControlUnit.MCC++; // increase Machine Cycle Counter every cycle
+
+        // if timer interrupt is enabled and MCC is greater than TimerCycleInterval, fire timer interrupt
         if (ControlUnit.ClockEnable && ControlUnit.TimerInterruptEnable && ControlUnit.MCC > ControlUnit.TimerCycleInterval) 
         {
-            TryFireTimerInterrupt();
+            CallInterrupt(TIMER_INTERRUPT, PriorityLevels.Level7);
             ControlUnit.MCC = 0;
         }
-
-        if (PIC.AcknowledgeInterrupt((PriorityLevels)ControlUnit.Priority, out byte? interruptVector))
+        else
         {
-            // jump to the interrupt handler
+            // otherwise process signal from PIC
+            if (PIC.TryGetNextSignal(ControlUnit.Priority, out var signal))
+            {
+                CallInterrupt(signal!.interruptVector, signal!.priorityLevel);
+            }
         }
     }
-    private void TryFireTimerInterrupt()
+    private void CallInterrupt(byte interruptVector, PriorityLevels priorityLevel)
     {
         if (logger.IsEnabled(LogLevel.Debug))
         {
-            logger.LogDebug("Firing timer interrupt...");
+            logger.LogDebug("Firing interrupt {i}...", interruptVector);
         }
+
+        MemoryControlUnit.MAR = (ushort)(interruptVector + 0x100);
+        MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
+        ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
+        ControlUnit.Privileged = true;
     }
 
     public Opcodes Decode() { 

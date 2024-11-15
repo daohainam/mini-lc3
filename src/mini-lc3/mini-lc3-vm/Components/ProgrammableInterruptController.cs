@@ -1,80 +1,48 @@
 ﻿namespace mini_lc3_vm.Components;
-public class ProgrammableInterruptController
+public class ProgrammableInterruptController(MemoryControlUnit memoryControlUnit)
 {
-    private readonly Queue<byte>[] interruptRequests; // 8 levels of priority, each level can have multiple interrupts
-    private Lock _lock = new();
-    public bool IsMasked { get; set; } = false;
+    private readonly List<DeviceIRQRegister>[] deviceIRQRegisters = new List<DeviceIRQRegister>[8];
+    private readonly MemoryControlUnit memoryControlUnit = memoryControlUnit;
 
-    public ProgrammableInterruptController()
+    public void RegisterDeviceIRQRegister(ushort registerAddress, byte interruptVector, PriorityLevels priorityLevel)
     {
-        interruptRequests = new Queue<byte>[8];
-        for (int i = 0; i < 8; i++)
-        {
-            interruptRequests[i] = new Queue<byte>();
-        }
+        deviceIRQRegisters[(byte)priorityLevel].Add(new DeviceIRQRegister(registerAddress, interruptVector));
+    }
+    public void UnregisterDeviceIRQRegister(ushort registerAddress, byte interruptVector, PriorityLevels priorityLevel)
+    {
+        deviceIRQRegisters[(byte)priorityLevel].RemoveAll(x => x.RegisterAddress == registerAddress && x.InterruptVector == interruptVector);
     }
 
-    private byte PriorityEncode(byte value)
+    public bool TryGetNextSignal(ushort currentPriorityLevel, out InterruptSignal? signal)
     {
-        // I cannot find a document about the priority encoding scheme used in the LC-3,
-        // so I'm assuming it is 8 to 3 encoder where the highest bit set is the priority level
-        // https://www.elprocus.com/priority-encoder/
-
-        if (value == 0) return 0;
-        for (byte i = 7; i >= 0; i--)
+        for (byte pl = 7; pl > currentPriorityLevel; pl--) // start from highest priority level
         {
-            if ((value & (1 << i)) != 0)
+            if (deviceIRQRegisters[pl].Count > 0)
             {
-                return i;
-            }
-        }
-        return 0; // should never reach here
-    }
-
-    public void RequestInterrupt(byte interrupt)
-    {
-        lock (_lock)
-        {
-            byte priority = PriorityEncode(interrupt);
-            interruptRequests[priority].Enqueue(interrupt);
-        }
-    }
-
-    /// <summary>
-    /// Acknowledge an interrupt request
-    /// </summary>
-    /// <param name="currentLevel">priority of the running thread</param>
-    /// <param name="vector">interrupt vector (0-255)</param>
-    /// <returns>true if there is an interrupt with higher priority waiting</returns>
-    public bool AcknowledgeInterrupt(PriorityLevels currentLevel, out byte? vector)
-    {
-        if (currentLevel == PriorityLevels.Level7) // no interrupts can be acknowledged at level 7
-        {
-            vector = null;
-            return false;
-        }
-
-        if (IsMasked) // if the interrupt controller is masked, return false
-        {
-            vector = null;
-            return false;
-        }
-
-        lock (_lock)
-        {
-            for (int i = (int)PriorityLevels.Level7; i > (int)currentLevel; i--)
-            {
-                if (interruptRequests[i].TryDequeue(out byte interrupt))
+                foreach (var r in deviceIRQRegisters[pl])
                 {
-                    vector = interrupt;
-                    return true;
+                    memoryControlUnit.MAR = r.RegisterAddress;
+                    memoryControlUnit.ReadSignal(false); // PIC can always read memory
+                    if ((memoryControlUnit.MDR & 0x04000) == 0x04000) // test bit 14
+                    {
+                        // turn it off
+                        memoryControlUnit.MDR = (short)(memoryControlUnit.MDR & 0xBFFF);
+                        memoryControlUnit.WriteSignal(true);
+
+                        signal = new(r.InterruptVector, (PriorityLevels)pl);
+                        return true;
+                    }
                 }
             }
-
-            vector = null;
-            return false;
         }
+
+        signal = null;
+        return false;
     }
+
+    private record DeviceIRQRegister(ushort RegisterAddress, byte InterruptVector);
+    
+    public record InterruptSignal(byte interruptVector, PriorityLevels priorityLevel);
 }
 
 public enum PriorityLevels : byte

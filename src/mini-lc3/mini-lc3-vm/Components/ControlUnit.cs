@@ -27,13 +27,13 @@ public class ControlUnit
     }
     public bool Privileged
     {
-        get => (PSR & 0x80) == 0x80;
-        set => PSR = (ushort)(value ? PSR | 0x80 : PSR & ~0x80);
+        get => (PSR & 0x8000) == 0x8000;
+        set => PSR = (ushort)(value ? PSR | 0x8000 : PSR & ~0x8000);
     }
     public ushort Priority
     {
-        get => (ushort)((PSR & 0x70) >> 8);
-        set => PSR = (ushort)((PSR & ~0x70) | ((value & 0x07) << 8));
+        get => (ushort)((PSR & 0x700) >> 8);
+        set => PSR = (ushort)((PSR & ~0x700) | ((value & 0x07) << 8));
     }
     public bool ClockEnable
     {

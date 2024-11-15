@@ -14,7 +14,7 @@ public class CPUTests
         _memory = new Memory();
         _memory.Reset();
         _memoryControlUnit = new MemoryControlUnit(_memory);
-        _pic = new ProgrammableInterruptController();
+        _pic = new ProgrammableInterruptController(_memoryControlUnit);
 
         _cpu = new CPU(_memoryControlUnit, _pic);
     }

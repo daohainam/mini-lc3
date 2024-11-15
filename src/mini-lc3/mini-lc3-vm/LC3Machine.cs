@@ -25,7 +25,7 @@ public class LC3Machine: ILC3Machine
 
         Memory = new(loggingFactory != null ? loggingFactory.CreateLogger<Memory>() : NullLogger<Memory>.Instance);
         MemoryControlUnit = new(Memory, loggingFactory != null ? loggingFactory.CreateLogger<MemoryControlUnit>() : NullLogger<MemoryControlUnit>.Instance);
-        PIC = new();
+        PIC = new(MemoryControlUnit);
 
         CPU = new(MemoryControlUnit, PIC, loggingFactory != null ? loggingFactory.CreateLogger(Name + ".CPU") : NullLogger<CPU>.Instance);
 
