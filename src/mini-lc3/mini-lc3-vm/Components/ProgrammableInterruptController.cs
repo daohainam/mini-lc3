@@ -1,4 +1,5 @@
 ﻿namespace mini_lc3_vm.Components;
+
 public class ProgrammableInterruptController(MemoryControlUnit memoryControlUnit)
 {
     private readonly List<DeviceIRQRegister>[] deviceIRQRegisters = new List<DeviceIRQRegister>[8];

@@ -23,6 +23,9 @@ public class CPU: IAttachable, IMappedMemory
     public MemoryControlUnit MemoryControlUnit { get; }
     public ProgrammableInterruptController PIC { get; }
 
+    private short SavedSSP { get; set; } // saved system stack pointer
+    private short SavedUSP { get; set; } // saved user stack pointer
+
     public bool IsAttached { get; private set; } = false;
 
     private readonly ILogger logger;
@@ -92,10 +95,34 @@ public class CPU: IAttachable, IMappedMemory
             logger.LogDebug("Firing interrupt {i}...", interruptVector);
         }
 
-        MemoryControlUnit.MAR = (ushort)(interruptVector + 0x100);
+        if (!ControlUnit.Privileged)
+        {
+            // backup user stack pointer
+            SavedUSP = ALU.RegisterFile[6];
+            // and restore system stack pointer
+            ALU.RegisterFile[6] = (short)SavedSSP;
+
+            ControlUnit.Privileged = true;
+        }
+
+        // push PSR and PC onto the stack
+        ALU.RegisterFile[6] -= 1;
+        MemoryControlUnit.MAR = (ushort)ALU.RegisterFile[6];
+        MemoryControlUnit.MDR = (short)ControlUnit.PSR;
+        MemoryControlUnit.WriteSignal(!ControlUnit.Privileged);
+        ALU.RegisterFile[6] -= 1;
+        MemoryControlUnit.MAR = (ushort)ALU.RegisterFile[6];
+        MemoryControlUnit.MDR = (short)ControlUnit.PC;
+
+        ControlUnit.Priority = (ushort)priorityLevel;
+
+        // clear N, Z, P flags
+        ControlUnit.PSR = (ushort)(ControlUnit.PSR & 0xFFF8);
+
+        // read the interrupt vector
+        MemoryControlUnit.MAR = (ushort)(interruptVector | 0x100);
         MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
         ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
-        ControlUnit.Privileged = true;
     }
 
     public Opcodes Decode() { 
@@ -410,9 +437,15 @@ public class CPU: IAttachable, IMappedMemory
         var trapVector = (ushort)(ControlUnit.IR & 0xFF);
         ALU.RegisterFile[7] = (short)ControlUnit.PC;
         MemoryControlUnit.MAR = trapVector;
-        ControlUnit.Privileged = true;
         MemoryControlUnit.ReadSignal(false);
         ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
+
+        if (!ControlUnit.Privileged)
+        {
+            SavedUSP = ALU.RegisterFile[6];
+            ALU.RegisterFile[6] = (short)SavedSSP;
+            ControlUnit.Privileged = true;
+        }
 
         if (logger.IsEnabled(LogLevel.Debug))
         {
@@ -454,15 +487,22 @@ public class CPU: IAttachable, IMappedMemory
             throw new PrivilegeModeException();
         }
 
+        if (!ControlUnit.Privileged)
+        {
+            SavedSSP = ALU.RegisterFile[6];
+            ALU.RegisterFile[6] = (short)SavedUSP;
+        }
+
+        // pop PSR and PC from the stack
         ushort r6 = (ushort)ALU.RegisterFile[6];
-        MemoryControlUnit.MAR = r6;
+
+        MemoryControlUnit.MAR = r6++;
         MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
         ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
-        r6++;
-        MemoryControlUnit.MAR = r6;
+
+        MemoryControlUnit.MAR = r6++;
         MemoryControlUnit.ReadSignal(!ControlUnit.Privileged);
         ControlUnit.PSR = (ushort)MemoryControlUnit.MDR;
-        r6++;
 
         ALU.RegisterFile[6] = (short)r6;
 
@@ -488,6 +528,7 @@ public class CPU: IAttachable, IMappedMemory
         }
         return (ushort)(ControlUnit.PC + (short)pcOffset6);
     }
+
     private ushort EvaluatePCRelativeAddress9()
     {
         ushort pcOffset9 = (ushort)(ControlUnit.IR & 0x1FF);
