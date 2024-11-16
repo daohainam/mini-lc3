@@ -106,13 +106,17 @@ public class CPU: IAttachable, IMappedMemory
         }
 
         // push PSR and PC onto the stack
-        ALU.RegisterFile[6] -= 1;
-        MemoryControlUnit.MAR = (ushort)ALU.RegisterFile[6];
+        var r6 = (ushort)ALU.RegisterFile[6];
+
+        MemoryControlUnit.MAR = r6--;
         MemoryControlUnit.MDR = (short)ControlUnit.PSR;
         MemoryControlUnit.WriteSignal(!ControlUnit.Privileged);
-        ALU.RegisterFile[6] -= 1;
+
+        MemoryControlUnit.MAR = r6--;
         MemoryControlUnit.MAR = (ushort)ALU.RegisterFile[6];
         MemoryControlUnit.MDR = (short)ControlUnit.PC;
+
+        ALU.RegisterFile[6] = (short)r6;
 
         ControlUnit.Priority = (ushort)priorityLevel;
 
@@ -442,8 +446,11 @@ public class CPU: IAttachable, IMappedMemory
 
         if (!ControlUnit.Privileged)
         {
+            // backup user stack pointer
             SavedUSP = ALU.RegisterFile[6];
+            // and restore system stack pointer
             ALU.RegisterFile[6] = (short)SavedSSP;
+
             ControlUnit.Privileged = true;
         }
 
