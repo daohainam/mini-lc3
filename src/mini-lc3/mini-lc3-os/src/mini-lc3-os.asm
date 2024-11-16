@@ -562,7 +562,7 @@ OS_SAVE_R6      .BLKW 1
 OS_SAVE_R7      .BLKW 1
 OS_OUT_SAVE_R1  .BLKW 1
 OS_IN_SAVE_R7   .BLKW 1
-OS_SAVE_SP	.FILL x3000	; save stack pointer, initially contains system stack pointer
+OS_SAVE_SP		.FILL x3000	; save stack pointer, initially contains system stack pointer
                 	
 MASK_HI         .FILL x7FFF
 LOW_8_BITS      .FILL x00FF

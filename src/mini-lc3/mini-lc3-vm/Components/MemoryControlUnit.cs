@@ -7,12 +7,14 @@ namespace mini_lc3_vm.Components;
 public class MemoryControlUnit: ILC3MemoryControlUnit, IMapableMemory
 {
     private readonly Memory _memory;
+    private ushort lowestDeviceMappedAddress;
     private readonly Dictionary<MemoryRange, IMappedMemory> _mappedDevices = [];
     private ILogger<MemoryControlUnit> logger;
 
     public MemoryControlUnit(Memory memory, ILogger<MemoryControlUnit> logger)
     {
         _memory = memory;
+        lowestDeviceMappedAddress = Memory.MemorySize;
         this.logger = logger;
     }
 
@@ -28,7 +30,7 @@ public class MemoryControlUnit: ILC3MemoryControlUnit, IMapableMemory
     {
         EnsureProtectionLevel(isUserMode);
 
-        if (MAR >= Memory.MemorySize)
+        if (MAR >= lowestDeviceMappedAddress)
         {
             foreach (var (range, device) in _mappedDevices)
             {
@@ -43,6 +45,7 @@ public class MemoryControlUnit: ILC3MemoryControlUnit, IMapableMemory
 
             MDR = 0; // no mapped device, return 0
         }
+
         MDR = _memory[MAR];
     }
 
@@ -50,7 +53,7 @@ public class MemoryControlUnit: ILC3MemoryControlUnit, IMapableMemory
     {
         EnsureProtectionLevel(isUserMode);
 
-        if (MAR >= Memory.MemorySize) {
+        if (MAR >= lowestDeviceMappedAddress) {
             foreach (var (range, device) in _mappedDevices)
             {
                 if (range.Contains(MAR))
@@ -65,8 +68,8 @@ public class MemoryControlUnit: ILC3MemoryControlUnit, IMapableMemory
     }
     public void Map(MemoryRange range, IMappedMemory device)
     {
-        if (range.Start < Memory.MemorySize) {
-            throw new ArgumentException("Memory range must start within the IO memory space (>= 0xFE00)");
+        if (range.Start < 0x3000) {
+            throw new ArgumentException("Memory range must not start within the kernel space (>= 0x3000)");
         }
 
         foreach (var (mappedRange, _) in _mappedDevices)
@@ -75,6 +78,11 @@ public class MemoryControlUnit: ILC3MemoryControlUnit, IMapableMemory
             {
                 throw new ArgumentException("Memory range collides with existing mapping");
             }
+        }
+
+        if (lowestDeviceMappedAddress > range.Start)
+        {
+            lowestDeviceMappedAddress = range.Start;
         }
 
         _mappedDevices.Add(range, device);

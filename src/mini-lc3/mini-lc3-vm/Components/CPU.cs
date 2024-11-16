@@ -71,17 +71,19 @@ public class CPU: IAttachable, IMappedMemory
         // if timer interrupt is enabled and MCC is greater than TimerCycleInterval, fire timer interrupt
         if (ControlUnit.ClockEnable && ControlUnit.TimerInterruptEnable && ControlUnit.MCC > ControlUnit.TimerCycleInterval) 
         {
-            CallInterrupt(TIMER_INTERRUPT, PriorityLevels.Level7);
+            // raise the timer flag
+
+            ControlUnit.TimerInterruptEnable = true;
             ControlUnit.MCC = 0;
         }
-        else
+
+
+        // process signal from PIC
+        if (PIC.TryGetNextSignal(ControlUnit.Priority, out var signal))
         {
-            // otherwise process signal from PIC
-            if (PIC.TryGetNextSignal(ControlUnit.Priority, out var signal))
-            {
-                CallInterrupt(signal!.interruptVector, signal!.priorityLevel);
-            }
+            CallInterrupt(signal!.interruptVector, signal!.priorityLevel);
         }
+
     }
     private void CallInterrupt(byte interruptVector, PriorityLevels priorityLevel)
     {
