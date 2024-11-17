@@ -11,17 +11,15 @@ namespace mini_lc3_vm.Debugging
     {
         public ushort PC { get; }
         public ushort IR { get; }
-        public ushort MAR { get; }
-        public ushort MDR { get; }
+        public ushort PSR { get; }
         public RegisterFile Registers { get; }
         public ReadOnlyMemory<short> Memory { get; }
 
-        public MachineState(ushort pc, ushort ir, ushort mar, ushort mdr, RegisterFile registers, ReadOnlyMemory<short> memory)
+        public MachineState(ushort pc, ushort ir, ushort psr, RegisterFile registers, ReadOnlyMemory<short> memory)
         {
             PC = pc;
             IR = ir;
-            MAR = mar;
-            MDR = mdr;
+            PSR = psr;
             Registers = registers;
             Memory = memory;
         }

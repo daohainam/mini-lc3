@@ -9,6 +9,6 @@ namespace mini_lc3_vm.Debugging
     public interface IDebuggable
     {
         void AddBreakPoint(BreakPoint breakPoint);
-        void RemoveBreakPoint(ushort address);
+        bool RemoveBreakPoint(ushort address);
     }
 }

@@ -1,10 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using mini_lc3_vm.Components;
+﻿namespace mini_lc3_vm;
 
-namespace mini_lc3_vm;
-
-public class LC3Machine: ILC3Machine
+public partial class LC3Machine: ILC3Machine, IDebuggable
 {
     public string Name { get; set; }
 
@@ -37,7 +33,31 @@ public class LC3Machine: ILC3Machine
 
     public void Run(CancellationToken cancellationToken)
     {
-        CPU.Run(cancellationToken);
+        while (!cancellationToken.IsCancellationRequested && CPU.ControlUnit.ClockEnable)
+        {
+            Step();
+
+            if (breakPoints.Count > 0)
+            {
+                // build machine state for debugging
+                var state = new MachineState(
+                    CPU.ControlUnit.PC,
+                    CPU.ControlUnit.IR,
+                    CPU.ControlUnit.PSR,
+                    CPU.ALU.RegisterFile,
+                    Memory.GetReadOnlyMemory()
+                    );
+
+                // check if we hit a breakpoint and stop execution
+                if (breakPoints.TryGetValue(CPU.ControlUnit.PC, out var breakPoint))
+                {
+                    if (breakPoint.Condition(state))
+                    {
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     public void Step()

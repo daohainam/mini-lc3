@@ -26,6 +26,11 @@ public class Memory: IEnumerable<short>
         this.logger = logger;
     }
 
+    public ReadOnlyMemory<short> GetReadOnlyMemory()
+    {
+        return _memory;
+    }
+
     public IEnumerator<short> GetEnumerator()
     {
         return ((IEnumerable<short>)_memory).GetEnumerator();
