@@ -1,9 +1,20 @@
 ﻿namespace mini_lc3_vm.Components;
 
-public class ProgrammableInterruptController(MemoryControlUnit memoryControlUnit)
+public class ProgrammableInterruptController
 {
-    private readonly List<DeviceIRQRegister>[] deviceIRQRegisters = new List<DeviceIRQRegister>[8];
-    private readonly MemoryControlUnit memoryControlUnit = memoryControlUnit;
+    private readonly List<DeviceIRQRegister>[] deviceIRQRegisters;
+    private readonly MemoryControlUnit memoryControlUnit;
+
+    public ProgrammableInterruptController(MemoryControlUnit memoryControlUnit)
+    {
+        this.memoryControlUnit = memoryControlUnit;
+
+        deviceIRQRegisters = new List<DeviceIRQRegister>[8];
+        for (int i = 0; i < 8; i++)
+        {
+            deviceIRQRegisters[i] = [];
+        }
+    }
 
     public void RegisterDeviceIRQRegister(ushort registerAddress, byte interruptVector, PriorityLevels priorityLevel)
     {
