@@ -1,12 +1,4 @@
-﻿using mini_lc3_vm.Components;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace mini_lc3_vm.Devices;
+﻿namespace mini_lc3_vm.Devices;
 
 public class LC3Monitor : IMappedMemory, IAttachable
 {
