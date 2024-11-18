@@ -75,9 +75,7 @@ public class CPU: IAttachable, IMappedMemory
         if (ControlUnit.ClockEnable && ControlUnit.TimerInterruptEnable && ControlUnit.MCC > ControlUnit.TimerCycleInterval) 
         {
             // raise the timer flag
-
             ControlUnit.TimerInterruptEnable = true;
-            ControlUnit.MCC = 0;
         }
 
 
@@ -92,7 +90,7 @@ public class CPU: IAttachable, IMappedMemory
     {
         if (logger.IsEnabled(LogLevel.Debug))
         {
-            logger.LogDebug("Firing interrupt {i}...", interruptVector);
+            logger.LogDebug("INT x{i:x}...", interruptVector);
         }
 
         if (!ControlUnit.Privileged)
@@ -494,12 +492,6 @@ public class CPU: IAttachable, IMappedMemory
             throw new PrivilegeModeException();
         }
 
-        if (!ControlUnit.Privileged)
-        {
-            SavedSSP = ALU.RegisterFile[6];
-            ALU.RegisterFile[6] = (short)SavedUSP;
-        }
-
         // pop PSR and PC from the stack
         ushort r6 = (ushort)ALU.RegisterFile[6];
 
@@ -512,6 +504,14 @@ public class CPU: IAttachable, IMappedMemory
         ControlUnit.PSR = (ushort)MemoryControlUnit.MDR;
 
         ALU.RegisterFile[6] = (short)r6;
+
+        // now PSR is restored, check if we need to restore user stack pointer
+        // note that an interrupt can be fired while CPU is in privileged mode, in that case we don't restore stack pointer
+        if (!ControlUnit.Privileged)
+        {
+            SavedSSP = ALU.RegisterFile[6];
+            ALU.RegisterFile[6] = (short)SavedUSP;
+        }
 
         if (logger.IsEnabled(LogLevel.Debug))
         {

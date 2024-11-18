@@ -23,7 +23,7 @@ Console.CancelKeyPress += (sender, e) =>
 {
     if (e.SpecialKey == ConsoleSpecialKey.ControlC)
     {
-        Console.WriteLine("Shutting down...");
+        Console.WriteLine("\nShutting down...");
         
         cancellationTokenSource.Cancel();
         e.Cancel = true;

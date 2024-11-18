@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using mini_lc3_vm.Exceptions;
-
-namespace mini_lc3_vm.Components;
+﻿namespace mini_lc3_vm.Components;
 
 public class MemoryControlUnit: ILC3MemoryControlUnit, IMapableMemory
 {

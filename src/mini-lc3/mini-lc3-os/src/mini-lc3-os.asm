@@ -262,9 +262,9 @@
 
 ; the interrupt vector table
 ; interrupts are not currently implemented
-        .FILL BAD_INT	; x00
+    .FILL BAD_INT	; x00
 	.FILL BAD_INT	; x01
-	.FILL BAD_INT	; x02
+	.FILL TIMER_INT	; x02
 	.FILL BAD_INT	; x03
 	.FILL BAD_INT	; x04
 	.FILL BAD_INT	; x05
@@ -548,9 +548,10 @@ OS_KBDR	.FILL xFE02		; keyboard data register
 OS_DSR	.FILL xFE04		; display status register
 OS_DDR	.FILL xFE06		; display data register
 OS_TR	.FILL xFE08		; timer register
-OS_TMI  .FILL xFE0A     	; timer interval register
+OS_TMI  .FILL xFE0A     ; timer interval register
 OS_MPR	.FILL xFE12		; memory protection register
 OS_MCR	.FILL xFFFE		; machine control register
+OS_MCC	.FILL xFFFF		; machine cycle counter
 
 OS_SAVE_R0      .BLKW 1
 OS_SAVE_R1      .BLKW 1
@@ -695,7 +696,28 @@ BAD_TRAP
 ;;; actually be any interrupts, so this will never actually get called.
 BAD_INT		RTI
 
+;;; Timer interrupt
+TIMER_INT
+;	ADD R6,R6,#-1		 ; push R0
+;	STR R0,R6,#0
+;	ADD R6,R6,#-1		 ; push R1
+;	STR R1,R6,#0
+;
+;	LEA R0,TIMER_INT_MSG 
+;	PUTS
+;
+;	AND R0,R0,#0		 ; clear R0
+;	LDI R0,OS_MCC		 ; reset counter
+;
+;	LDR R1,R6,#0		 ; pop R1
+;	ADD R6,R6,#1
+;	LDR R0,R6,#0		 ; pop R0
+;	ADD R6,R6,#1
+
+	RTI
+
 STARTING_MSG	.STRINGZ "Starting mini-lc3-os...\n"
+TIMER_INT_MSG	.STRINGZ "INT x2\n"
 TRAP_IN_MSG		.STRINGZ "\nInput a character> "
 
 .END

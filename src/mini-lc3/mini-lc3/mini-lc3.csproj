@@ -9,6 +9,12 @@
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="testfiles\helloworld-loop.bin" />
+    <None Remove="testfiles\helloworld-loop.lst" />
+    <None Remove="testfiles\helloworld-loop.obj" />
+    <None Remove="testfiles\helloworld-loop.sym" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\mini-lc3-vm\mini-lc3-vm.csproj" />
   </ItemGroup>
   <ItemGroup>
