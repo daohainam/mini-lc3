@@ -12,7 +12,8 @@ builder.AddLogging(builder => builder.AddSimpleConsole(options =>
     options.SingleLine = true;
     options.TimestampFormat = "HH:mm:ss ";
     options.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
-}).SetMinimumLevel(isDebug ? LogLevel.Debug : LogLevel.Information));
+}).SetMinimumLevel(isDebug ? LogLevel.Debug : LogLevel.Information))
+    .EnableTimerInterrupt(10);
 
 var machine = builder.Build();
 

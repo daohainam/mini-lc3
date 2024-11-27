@@ -70,4 +70,14 @@ public partial class LC3Machine: ILC3Machine, IDebuggable
         device.Attach(this);
         devices.Add(device);
     }
+
+    public void SetTimerInterruptInterval(ushort interval)
+    {
+        CPU.ControlUnit.TimerCycleInterval = interval;
+    }
+
+    public void ClearTimerInterruptInterval()
+    {
+        CPU.ControlUnit.TimerCycleInterval = 0;
+    }
 }

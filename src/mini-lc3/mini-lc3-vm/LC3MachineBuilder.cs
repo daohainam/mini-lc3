@@ -16,6 +16,7 @@ public class LC3MachineBuilder: ILC3MachineBuilder
     private ushort[] osImage = EmbeddedOS.OsImage;
     private IExecutableImage? executableImage;
     private ServiceCollection services = new();
+    private ushort timerInterruptInterval;
 
     public ILC3Machine Build()
     {
@@ -41,6 +42,10 @@ public class LC3MachineBuilder: ILC3MachineBuilder
         executableImage ??= new ExecutableImage(0x3000, Loop);
         machine.Memory.LoadInstructions(executableImage.Instructions, executableImage.LoadAddress);
 
+        if (timerInterruptInterval > 0)
+        {
+            machine.SetTimerInterruptInterval(timerInterruptInterval);
+        }
 
         return machine;
     }
@@ -143,6 +148,12 @@ public class LC3MachineBuilder: ILC3MachineBuilder
     public ILC3MachineBuilder UseMonitor()
     {
         useMonitor = true;
+        return this;
+    }
+
+    public ILC3MachineBuilder EnableTimerInterrupt(ushort interval)
+    {
+        timerInterruptInterval = interval;
         return this;
     }
 

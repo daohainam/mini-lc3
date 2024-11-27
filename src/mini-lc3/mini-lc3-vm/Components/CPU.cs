@@ -72,7 +72,7 @@ public class CPU: IAttachable, IMappedMemory
         ControlUnit.MCC++; // increase Machine Cycle Counter every cycle
 
         // if timer interrupt is enabled and MCC is greater than TimerCycleInterval, fire timer interrupt
-        if (ControlUnit.ClockEnable && ControlUnit.TimerInterruptEnable && ControlUnit.MCC > ControlUnit.TimerCycleInterval) 
+        if (ControlUnit.ClockEnable && ControlUnit.MCC > ControlUnit.TimerCycleInterval) 
         {
             // raise the timer flag
             ControlUnit.TimerInterruptEnable = true;
@@ -90,7 +90,7 @@ public class CPU: IAttachable, IMappedMemory
     {
         if (logger.IsEnabled(LogLevel.Debug))
         {
-            logger.LogDebug("INT x{i:x}...", interruptVector);
+            logger.LogInformation("INT x{i:x}...", interruptVector);
         }
 
         if (!ControlUnit.Privileged)

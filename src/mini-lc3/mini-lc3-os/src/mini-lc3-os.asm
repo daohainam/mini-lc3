@@ -681,7 +681,7 @@ TRAP_PUTSP_DONE
 ;;; HALT - trap handler for halting machine
 TRAP_HALT	
 	LDI R0,OS_MCR		
-	LD R1,MASK_HI           ; clear run bit in MCR
+	LD R1,MASK_HI       ; clear run bit in MCR
 	AND R0,R0,R1
 	STI R0,OS_MCR		; halt!
 	BRnzp OS_START		; restart machine
