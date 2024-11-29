@@ -7,7 +7,7 @@ namespace mini_lc3_vm.Components;
 
 public class CPU: IAttachable, IMappedMemory
 {
-    public byte Id { get; set; } = 0;
+    public byte Id { get; private set; } = 0;
 
     public const ushort DefaultPCAddress = 0x0200; // OS's first address
     public const ushort UserSpaceAddress = 0x3000;
@@ -32,12 +32,14 @@ public class CPU: IAttachable, IMappedMemory
 
     private readonly ILogger logger;
 
-    public CPU(MemoryControlUnit memoryControlUnit, ProgrammableInterruptController pic) : this(memoryControlUnit, pic, NullLogger<CPU>.Instance)
+    public CPU(MemoryControlUnit memoryControlUnit, ProgrammableInterruptController pic, byte id) : this(memoryControlUnit, pic, id, NullLogger<CPU>.Instance)
     {
     }
 
-    public CPU(MemoryControlUnit memoryControlUnit, ProgrammableInterruptController pic, ILogger logger)
+    public CPU(MemoryControlUnit memoryControlUnit, ProgrammableInterruptController pic, byte id, ILogger logger)
     {
+        this.Id = id;
+
         ALU = new();
         ControlUnit = new();
         MemoryControlUnit = memoryControlUnit;
@@ -84,7 +86,7 @@ public class CPU: IAttachable, IMappedMemory
         // process signal from PIC
         if (PIC.TryGetNextSignal(Id, ControlUnit.Priority, out var signal))
         {
-            CallInterrupt(signal!.interruptVector, signal!.priorityLevel);
+            //CallInterrupt(signal!.interruptVector, signal!.priorityLevel);
         }
 
     }

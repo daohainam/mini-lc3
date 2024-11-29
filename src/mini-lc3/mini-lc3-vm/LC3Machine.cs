@@ -23,10 +23,10 @@ public partial class LC3Machine: ILC3Machine, IDebuggable
         MemoryControlUnit = new(Memory, loggingFactory != null ? loggingFactory.CreateLogger<MemoryControlUnit>() : NullLogger<MemoryControlUnit>.Instance);
         PIC = new(MemoryControlUnit);
 
-        CPU = new(MemoryControlUnit, PIC, loggingFactory != null ? loggingFactory.CreateLogger(Name + ".CPU") : NullLogger<CPU>.Instance);
+        CPU = new(MemoryControlUnit, PIC, 0, loggingFactory != null ? loggingFactory.CreateLogger(Name + ".CPU") : NullLogger<CPU>.Instance);
 
         AttachDevice(CPU); // map MCR register 
-        PIC.RegisterDeviceIRQRegister(CPU.MCR_ADDRESS, 2, PriorityLevels.Level7);
+        PIC.RegisterDeviceIRQRegister(CPU.MCR_ADDRESS, 2, PriorityLevels.Level7, CPU.Id);
 
         Memory.Reset();
         CPU.Boot();
