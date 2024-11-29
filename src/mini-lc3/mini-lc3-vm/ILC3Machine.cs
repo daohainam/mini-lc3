@@ -10,8 +10,6 @@ public interface ILC3Machine
     MemoryControlUnit MemoryControlUnit { get; }
     IEnumerable<IAttachable> Devices { get; }
 
-    void ClearTimerInterruptInterval();
     void Run(CancellationToken cancellationToken);
-    void SetTimerInterruptInterval(ushort interval);
     void Step();
 }

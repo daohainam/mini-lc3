@@ -529,9 +529,9 @@ OS_START
 	LD R0, MPR_INIT
 	STI R0, OS_MPR
 
-	;; set timer interval
+	;; set timer interval, bits [13:0] of MCR contains timer interrupt interval
 	LD R0, TIM_INIT
-	STI R0, OS_TMI
+	STI R0, OS_MCR
 
 	; init stack pointer
 	LD R6, USER_STACK_INIT
@@ -567,7 +567,7 @@ OS_SAVE_SP		.FILL x3000	; save stack pointer, initially contains system stack po
                 	
 MASK_HI         .FILL x7FFF
 LOW_8_BITS      .FILL x00FF
-TIM_INIT        .FILL #40
+TIM_INIT        .FILL x807F ; make sure highest bit is on (turn off to HALT)
 MPR_INIT	.FILL x0FF8	; user can access x3000 to xbfff
 USER_STACK_INIT	.FILL 0xFE00	; user stack, just right before I/O mapping memory part
         
