@@ -14,5 +14,4 @@ public interface ILC3MachineBuilder
     ILC3MachineBuilder LoadProgram(string fileName);
     ILC3MachineBuilder UseKeyBoard();
     ILC3MachineBuilder UseMonitor();
-    ILC3MachineBuilder EnableTimerInterrupt(ushort interval);
 }

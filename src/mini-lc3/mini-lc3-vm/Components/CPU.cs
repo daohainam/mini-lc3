@@ -7,6 +7,8 @@ namespace mini_lc3_vm.Components;
 
 public class CPU: IAttachable, IMappedMemory
 {
+    public byte Id { get; set; } = 0;
+
     public const ushort DefaultPCAddress = 0x0200; // OS's first address
     public const ushort UserSpaceAddress = 0x3000;
 
@@ -72,15 +74,15 @@ public class CPU: IAttachable, IMappedMemory
         ControlUnit.MCC++; // increase Machine Cycle Counter every cycle
 
         // if timer interrupt is enabled and MCC is greater than TimerCycleInterval, fire timer interrupt
-        if (ControlUnit.ClockEnable && ControlUnit.MCC > ControlUnit.TimerCycleInterval) 
+        if (ControlUnit.ClockEnable && ControlUnit.TimerCycleInterval > 0 && ControlUnit.MCC > ControlUnit.TimerCycleInterval) 
         {
             // raise the timer flag
             ControlUnit.TimerInterruptEnable = true;
+            ControlUnit.MCC = 0;
         }
 
-
         // process signal from PIC
-        if (PIC.TryGetNextSignal(ControlUnit.Priority, out var signal))
+        if (PIC.TryGetNextSignal(Id, ControlUnit.Priority, out var signal))
         {
             CallInterrupt(signal!.interruptVector, signal!.priorityLevel);
         }

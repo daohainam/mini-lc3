@@ -16,16 +16,16 @@ public class ProgrammableInterruptController
         }
     }
 
-    public void RegisterDeviceIRQRegister(ushort registerAddress, byte interruptVector, PriorityLevels priorityLevel)
+    public void RegisterDeviceIRQRegister(ushort registerAddress, byte interruptVector, PriorityLevels priorityLevel, byte cpu)
     {
-        deviceIRQRegisters[(byte)priorityLevel].Add(new DeviceIRQRegister(registerAddress, interruptVector));
+        deviceIRQRegisters[(byte)priorityLevel].Add(new DeviceIRQRegister(registerAddress, interruptVector, cpu));
     }
     public void UnregisterDeviceIRQRegister(ushort registerAddress, byte interruptVector, PriorityLevels priorityLevel)
     {
         deviceIRQRegisters[(byte)priorityLevel].RemoveAll(x => x.RegisterAddress == registerAddress && x.InterruptVector == interruptVector);
     }
 
-    public bool TryGetNextSignal(ushort currentPriorityLevel, out InterruptSignal? signal)
+    public bool TryGetNextSignal(byte cpu, ushort currentPriorityLevel, out InterruptSignal? signal)
     {
         for (byte pl = 7; pl > currentPriorityLevel; pl--) // start from highest priority level
         {
@@ -33,15 +33,20 @@ public class ProgrammableInterruptController
             {
                 foreach (var r in deviceIRQRegisters[pl])
                 {
+                    if (r.cpu != cpu)
+                    {
+                        continue;
+                    }
+
                     memoryControlUnit.MAR = r.RegisterAddress;
                     memoryControlUnit.ReadSignal(false); // PIC can always read memory
                     if ((memoryControlUnit.MDR & 0x04000) == 0x04000) // test bit 14
                     {
                         // turn it off
                         memoryControlUnit.MDR = (short)(memoryControlUnit.MDR & 0xBFFF);
-                        memoryControlUnit.WriteSignal(true);
+                        memoryControlUnit.WriteSignal(false);
 
-                        signal = new(r.InterruptVector, (PriorityLevels)pl);
+                        signal = new(r.InterruptVector, (PriorityLevels)pl, r.cpu);
                         return true;
                     }
                 }
@@ -52,9 +57,9 @@ public class ProgrammableInterruptController
         return false;
     }
 
-    private record DeviceIRQRegister(ushort RegisterAddress, byte InterruptVector);
+    private record DeviceIRQRegister(ushort RegisterAddress, byte InterruptVector, byte cpu);
     
-    public record InterruptSignal(byte interruptVector, PriorityLevels priorityLevel);
+    public record InterruptSignal(byte interruptVector, PriorityLevels priorityLevel, byte cpu);
 }
 
 public enum PriorityLevels : byte
