@@ -567,7 +567,7 @@ OS_SAVE_SP		.FILL x3000	; save stack pointer, initially contains system stack po
                 	
 MASK_HI         .FILL x7FFF
 LOW_8_BITS      .FILL x00FF
-TIM_INIT        .FILL x807F ; make sure highest bit is on (turn off to HALT)
+TIM_INIT        .FILL x8400 ; make sure highest bit is on (turn off to HALT)
 MPR_INIT	.FILL x0FF8	; user can access x3000 to xbfff
 USER_STACK_INIT	.FILL 0xFE00	; user stack, just right before I/O mapping memory part
         
