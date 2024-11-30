@@ -26,7 +26,7 @@ public partial class LC3Machine: ILC3Machine, IDebuggable
         CPU = new(MemoryControlUnit, PIC, 0, loggingFactory != null ? loggingFactory.CreateLogger(Name + ".CPU") : NullLogger<CPU>.Instance);
 
         AttachDevice(CPU); // map MCR register 
-        PIC.RegisterDeviceIRQRegister(CPU.MCR_ADDRESS, 2, PriorityLevels.Level7, CPU.Id);
+        PIC.RegisterDeviceIRQRegister(CPU.MCR_ADDRESS, 2, PriorityLevels.Level4, CPU.Id);
 
         Memory.Reset();
         CPU.Boot();

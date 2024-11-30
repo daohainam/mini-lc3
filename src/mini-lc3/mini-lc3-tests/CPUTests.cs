@@ -16,7 +16,7 @@ public class CPUTests
         _memoryControlUnit = new MemoryControlUnit(_memory);
         _pic = new ProgrammableInterruptController(_memoryControlUnit);
 
-        _cpu = new CPU(_memoryControlUnit, _pic);
+        _cpu = new CPU(_memoryControlUnit, _pic, 0);
     }
 
     [Fact]
