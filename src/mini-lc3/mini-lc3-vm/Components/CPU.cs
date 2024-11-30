@@ -53,8 +53,14 @@ public class CPU: IAttachable, IMappedMemory
         ControlUnit.PC = DefaultPCAddress;
         ControlUnit.Privileged = true;
 
-        for (int i = 0; i < 8; i++)
-            ALU.RegisterFile[i] = 0;
+        ALU.RegisterFile[0] = 0;
+        ALU.RegisterFile[1] = 0;
+        ALU.RegisterFile[2] = 0;
+        ALU.RegisterFile[3] = 0;
+        ALU.RegisterFile[4] = 0;
+        ALU.RegisterFile[5] = 0;
+        ALU.RegisterFile[6] = (short)UserSpaceAddress; // R6 = system stack pointer = end of kernel space
+        ALU.RegisterFile[7] = 0;
 
         ControlUnit.ClockEnable = true;
     }
@@ -86,7 +92,7 @@ public class CPU: IAttachable, IMappedMemory
         // process signal from PIC
         if (PIC.TryGetNextSignal(Id, ControlUnit.Priority, out var signal))
         {
-            //CallInterrupt(signal!.interruptVector, signal!.priorityLevel);
+            CallInterrupt(signal!.interruptVector, signal!.priorityLevel);
         }
 
     }
@@ -94,7 +100,7 @@ public class CPU: IAttachable, IMappedMemory
     {
         if (logger.IsEnabled(LogLevel.Debug))
         {
-            logger.LogInformation("INT x{i:x}...", interruptVector);
+            logger.LogInformation("INT x{i:x}, current PC: x{pc:x}...", interruptVector, ControlUnit.PC);
         }
 
         if (!ControlUnit.Privileged)
@@ -110,13 +116,13 @@ public class CPU: IAttachable, IMappedMemory
         // push PSR and PC onto the stack
         var r6 = (ushort)ALU.RegisterFile[6];
 
-        MemoryControlUnit.MAR = r6--;
+        MemoryControlUnit.MAR = --r6;
         MemoryControlUnit.MDR = (short)ControlUnit.PSR;
         MemoryControlUnit.WriteSignal(!ControlUnit.Privileged);
 
-        MemoryControlUnit.MAR = r6--;
-        MemoryControlUnit.MAR = (ushort)ALU.RegisterFile[6];
+        MemoryControlUnit.MAR = --r6;
         MemoryControlUnit.MDR = (short)ControlUnit.PC;
+        MemoryControlUnit.WriteSignal(!ControlUnit.Privileged);
 
         ALU.RegisterFile[6] = (short)r6;
 
