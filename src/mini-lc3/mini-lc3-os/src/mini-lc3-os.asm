@@ -264,13 +264,13 @@
 ; interrupts are not currently implemented
     .FILL BAD_INT	; x00
 	.FILL BAD_INT	; x01
-	.FILL TIMER_INT	; x02
+	.FILL BAD_INT	; x02
 	.FILL BAD_INT	; x03
 	.FILL BAD_INT	; x04
 	.FILL BAD_INT	; x05
 	.FILL BAD_INT	; x06
 	.FILL BAD_INT	; x07
-	.FILL BAD_INT	; x08
+	.FILL TIMER_INT	; x08
 	.FILL BAD_INT	; x09
 	.FILL BAD_INT	; x0A
 	.FILL BAD_INT	; x0B

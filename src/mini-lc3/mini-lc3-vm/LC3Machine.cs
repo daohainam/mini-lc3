@@ -26,7 +26,12 @@ public partial class LC3Machine: ILC3Machine, IDebuggable
         CPU = new(MemoryControlUnit, PIC, 0, loggingFactory != null ? loggingFactory.CreateLogger(Name + ".CPU") : NullLogger<CPU>.Instance);
 
         AttachDevice(CPU); // map MCR register 
-        PIC.RegisterDeviceIRQRegister(CPU.MCR_ADDRESS, 2, PriorityLevels.Level4, CPU.Id);
+
+        // register IRQ 8 to timer
+        // in some LC3b documentations, timer uses interrupt 2,
+        // but it conflicts with access control violation exception ('A.3.2 Exceptions' in the book),
+        // so we use interrupt 8 in this implementation
+        PIC.RegisterDeviceIRQRegister(CPU.MCR_ADDRESS, 8, PriorityLevels.Level4, CPU.Id);
 
         Memory.Reset();
         CPU.Boot();
