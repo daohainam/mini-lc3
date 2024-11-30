@@ -7,6 +7,6 @@
 	JMP R0
 
 USER_CODE_ADDR	.FILL x3000	
-hello	.STRINGZ "Hello World!"	
+hello	.STRINGZ "Hello World!\n"	
 	
 .END   
