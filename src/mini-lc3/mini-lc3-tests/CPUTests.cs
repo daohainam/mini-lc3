@@ -1,3 +1,5 @@
+using mini_lc3_vm.Components;
+
 namespace mini_lc3_tests;
 
 public class CPUTests
@@ -141,5 +143,25 @@ public class CPUTests
 
         _cpu.ControlUnit.PC.Should().Be(0x1234);
         _cpu.ALU.RegisterFile[7].Should().Be(0x3001);
+    }
+
+    [Fact]
+    public void Execute_Interrupt() { 
+        _cpu.Boot();
+        _cpu.ControlUnit.PC = CPU.UserSpaceAddress;
+        _cpu.ControlUnit.PSR = 0b_0000_0111_0000_0000; // enable interrupts
+        _cpu.ALU.RegisterFile[6] = 0x4000; // USP
+        _cpu.SavedSSP = 0x3000;
+
+        _memory.LoadInstructions([0x0300], 0x0108); // interrupt vector 8
+
+        _cpu.CallInterrupt(8, PriorityLevels.Level4);
+
+        _cpu.ControlUnit.PC.Should().Be(0x0300);
+        _cpu.ControlUnit.Priority.Should().Be(4);
+        _cpu.SavedUSP.Should().Be(0x4000);
+        _cpu.ALU.RegisterFile[6].Should().Be(0x3000 - 2); // SSP
+        _memory[0x3000 - 1].Should().Be(0b_0000_0111_0000_0000);
+        _memory[0x3000 - 2].Should().Be((short)CPU.UserSpaceAddress);
     }
 }

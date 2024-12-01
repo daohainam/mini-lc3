@@ -4,3 +4,6 @@ global using mini_lc3_vm.Components;
 global using mini_lc3_vm.Debugging;
 global using mini_lc3_vm.ExecuteableFile;
 global using mini_lc3_vm.Exceptions;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("mini-lc3-tests")]

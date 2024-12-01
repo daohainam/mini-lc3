@@ -25,8 +25,8 @@ public class CPU: IAttachable, IMappedMemory
     public MemoryControlUnit MemoryControlUnit { get; }
     public ProgrammableInterruptController PIC { get; }
 
-    private short SavedSSP { get; set; } // saved system stack pointer
-    private short SavedUSP { get; set; } // saved user stack pointer
+    internal short SavedSSP { get; set; } // saved system stack pointer
+    internal short SavedUSP { get; set; } // saved user stack pointer
 
     public bool IsAttached { get; private set; } = false;
 
@@ -96,12 +96,14 @@ public class CPU: IAttachable, IMappedMemory
         }
 
     }
-    private void CallInterrupt(byte interruptVector, PriorityLevels priorityLevel)
+    internal void CallInterrupt(byte interruptVector, PriorityLevels priorityLevel)
     {
         if (logger.IsEnabled(LogLevel.Debug))
         {
             logger.LogInformation("INT x{i:x}, current PC: x{pc:x}...", interruptVector, ControlUnit.PC);
         }
+
+        var originalPSR = ControlUnit.PSR; // backup before changing priviledge bit
 
         if (!ControlUnit.Privileged)
         {
@@ -117,7 +119,7 @@ public class CPU: IAttachable, IMappedMemory
         var r6 = (ushort)ALU.RegisterFile[6];
 
         MemoryControlUnit.MAR = --r6;
-        MemoryControlUnit.MDR = (short)ControlUnit.PSR;
+        MemoryControlUnit.MDR = (short)originalPSR;
         MemoryControlUnit.WriteSignal(!ControlUnit.Privileged);
 
         MemoryControlUnit.MAR = --r6;
@@ -205,7 +207,7 @@ public class CPU: IAttachable, IMappedMemory
     }
 
     #region Opcodes
-    private void Add()
+    internal void Add()
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
         var sr1 = (ControlUnit.IR >> 6) & 0x7;
@@ -238,7 +240,7 @@ public class CPU: IAttachable, IMappedMemory
         CalculateNZP(ALU.RegisterFile[dr]);
     }
 
-    private void And()
+    internal void And()
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
         var sr1 = (ControlUnit.IR >> 6) & 0x7;
@@ -272,7 +274,7 @@ public class CPU: IAttachable, IMappedMemory
         }
     }
 
-    private void Not()
+    internal void Not()
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
         var sr = (ControlUnit.IR >> 6) & 0x7;
@@ -286,7 +288,7 @@ public class CPU: IAttachable, IMappedMemory
         }
     }
 
-    private void Load()
+    internal void Load()
     {
         var dr = (ControlUnit.IR >> 9) & 0x7;
         MemoryControlUnit.MAR = EvaluatePCRelativeAddress9();
@@ -301,7 +303,7 @@ public class CPU: IAttachable, IMappedMemory
         }
     }
 
-    private void LoadIndirect()
+    internal void LoadIndirect()
     {
         // LDI
         var dr = (ControlUnit.IR >> 9) & 0x7;
@@ -318,7 +320,7 @@ public class CPU: IAttachable, IMappedMemory
         }
     }
 
-    private void LoadRegister()
+    internal void LoadRegister()
     {
         // LDR
         var dr = (ControlUnit.IR >> 9) & 0x7;
@@ -341,7 +343,7 @@ public class CPU: IAttachable, IMappedMemory
         }
     }
 
-    private void LoadEffectiveAddress()
+    internal void LoadEffectiveAddress()
     {
         // LEA
         var dr = (ControlUnit.IR >> 9) & 0x7;
@@ -355,7 +357,7 @@ public class CPU: IAttachable, IMappedMemory
         }
     }
 
-    private void Store()
+    internal void Store()
     {
         // ST
         var sr = (ControlUnit.IR >> 9) & 0x7;
@@ -369,7 +371,7 @@ public class CPU: IAttachable, IMappedMemory
         }
     }
 
-    private void StoreIndirect()
+    internal void StoreIndirect()
     {
         // STI
         var sr = (ControlUnit.IR >> 9) & 0x7;
@@ -385,7 +387,7 @@ public class CPU: IAttachable, IMappedMemory
         }
     }
 
-    private void StoreRegister()
+    internal void StoreRegister()
     {
         // STR
         var sr = (ControlUnit.IR >> 9) & 0x7;
@@ -405,7 +407,7 @@ public class CPU: IAttachable, IMappedMemory
         }
     }
 
-    private void Branch()
+    internal void Branch()
     {
         if ((ControlUnit.N && ((ControlUnit.IR >> 11) & 0x1) == 1) 
             || (ControlUnit.Z && ((ControlUnit.IR >> 10) & 0x1) == 1)
@@ -428,7 +430,7 @@ public class CPU: IAttachable, IMappedMemory
         }
     }
 
-    private void Jump()
+    internal void Jump()
     {
         var baseR = (ControlUnit.IR >> 6) & 0x7;
         ControlUnit.PC = (ushort)ALU.RegisterFile[baseR];
@@ -444,7 +446,7 @@ public class CPU: IAttachable, IMappedMemory
         }
     }
 
-    private void Trap()
+    internal void Trap()
     {
         var trapVector = (ushort)(ControlUnit.IR & 0xFF);
         ALU.RegisterFile[7] = (short)ControlUnit.PC;
@@ -468,7 +470,7 @@ public class CPU: IAttachable, IMappedMemory
         }
     }
 
-    private void JumpToSubroutine()
+    internal void JumpToSubroutine()
     {
         // JSR
         var longFlag = (ControlUnit.IR >> 11) & 0x1;
@@ -495,7 +497,7 @@ public class CPU: IAttachable, IMappedMemory
         }
     }
 
-    private void ReturnFromInterrupt()
+    internal void ReturnFromInterrupt()
     {
         if (!ControlUnit.Privileged)
         {
@@ -529,14 +531,14 @@ public class CPU: IAttachable, IMappedMemory
         }
     }
 
-    private void CalculateNZP(short v)
+    internal void CalculateNZP(short v)
     {
         ControlUnit.N = v < 0;
         ControlUnit.Z = v == 0;
         ControlUnit.P = v > 0;
     }
 
-    private ushort EvaluatePCRelativeAddress6()
+    internal ushort EvaluatePCRelativeAddress6()
     {
         ushort pcOffset6 = (ushort)(ControlUnit.IR & 0x3F);
         if ((ControlUnit.IR & 0x20) == 0x20)
@@ -546,7 +548,7 @@ public class CPU: IAttachable, IMappedMemory
         return (ushort)(ControlUnit.PC + (short)pcOffset6);
     }
 
-    private ushort EvaluatePCRelativeAddress9()
+    internal ushort EvaluatePCRelativeAddress9()
     {
         ushort pcOffset9 = (ushort)(ControlUnit.IR & 0x1FF);
         if ((ControlUnit.IR & 0x100) == 0x100)
