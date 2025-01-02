@@ -81,6 +81,7 @@ public class CPU: IAttachable, IMappedMemory
 
         ControlUnit.MCC++; // increase Machine Cycle Counter every cycle
 
+#if TIMER_INTTERUPT
         // if timer interrupt is enabled and MCC is greater than TimerCycleInterval, fire timer interrupt
         if (ControlUnit.ClockEnable && ControlUnit.TimerCycleInterval > 0 && ControlUnit.MCC > ControlUnit.TimerCycleInterval) 
         {
@@ -94,7 +95,7 @@ public class CPU: IAttachable, IMappedMemory
         {
             CallInterrupt(signal!.interruptVector, signal!.priorityLevel);
         }
-
+#endif
     }
     internal void CallInterrupt(byte interruptVector, PriorityLevels priorityLevel)
     {
