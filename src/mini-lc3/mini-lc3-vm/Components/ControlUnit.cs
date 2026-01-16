@@ -2,7 +2,7 @@
 
 namespace mini_lc3_vm.Components;
 
-[DebuggerDisplay("PC = {PC}, IR = {IR}, PSR = {PSR}, MCR = {MCR}, MCC = {MCR}, TimerCycleInterval = {TimerCycleInterval}")]
+[DebuggerDisplay("PC = {PC}, IR = {IR}, PSR = {PSR}, MCR = {MCR}, MCC = {MCC}, TimerCycleInterval = {TimerCycleInterval}")]
 public class ControlUnit
 {
     public ushort IR { get; set; } // Instruction Register
@@ -42,7 +42,7 @@ public class ControlUnit
     }
     public bool TimerInterruptEnable
     {
-        get => (MCR & 0x4000) == 0x100;
+        get => (MCR & 0x4000) == 0x4000;
         set => MCR = (ushort)(value ? MCR | 0x4000 : MCR & ~0x4000);
     }
     public ushort TimerCycleInterval

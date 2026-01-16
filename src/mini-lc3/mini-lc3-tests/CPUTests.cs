@@ -164,4 +164,57 @@ public class CPUTests
         _memory[0x3000 - 1].Should().Be(0b_0000_0111_0000_0000);
         _memory[0x3000 - 2].Should().Be((short)CPU.UserSpaceAddress);
     }
+
+    [Fact]
+    public void Execute_LEA_SetsCorrectNZPFlags()
+    {
+        _cpu.Boot();
+        _cpu.ControlUnit.PC = 0x3000;
+        // LEA R0, #-1 (should load address 0x3000 which is positive)
+        _memory.LoadInstructions([0b_1110_000_111111111], 0x3000); // LEA R0, #-1
+        _cpu.FetchAndExecute();
+
+        _cpu.ALU.RegisterFile[0].Should().Be(0x3000);
+        _cpu.ControlUnit.P.Should().BeTrue();
+        _cpu.ControlUnit.Z.Should().BeFalse();
+        _cpu.ControlUnit.N.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Execute_JSR_WithSignExtension()
+    {
+        _cpu.Boot();
+        _cpu.ControlUnit.PC = 0x3100;
+        // JSR with offset -256 (0x700 with sign bit set, should extend to 0xF700)
+        _memory.LoadInstructions([0b_0100_1_11100000000], 0x3100); // JSR #-256
+        _cpu.FetchAndExecute();
+
+        // PC should be 0x3100 + 1 (after fetch) + (-256) = 0x3101 - 256 = 0x3001
+        _cpu.ControlUnit.PC.Should().Be(0x3001);
+        _cpu.ALU.RegisterFile[7].Should().Be(0x3101);
+    }
+
+    [Fact]
+    public void Execute_JSRR_SavesReturnAddress()
+    {
+        _cpu.Boot();
+        _cpu.ControlUnit.PC = 0x3100;
+        _cpu.ALU.RegisterFile[2] = 0x4000;
+        // JSRR R2 (bit 11 = 0 for JSRR)
+        _memory.LoadInstructions([0b_0100_0_00_010_000000], 0x3100); // JSRR R2
+        _cpu.FetchAndExecute();
+
+        _cpu.ControlUnit.PC.Should().Be(0x4000);
+        _cpu.ALU.RegisterFile[7].Should().Be(0x3101);
+    }
+
+    [Fact]
+    public void TimerInterruptEnable_GetterReturnsCorrectValue()
+    {
+        _cpu.ControlUnit.MCR = 0x4000;
+        _cpu.ControlUnit.TimerInterruptEnable.Should().BeTrue();
+
+        _cpu.ControlUnit.MCR = 0x0000;
+        _cpu.ControlUnit.TimerInterruptEnable.Should().BeFalse();
+    }
 }
