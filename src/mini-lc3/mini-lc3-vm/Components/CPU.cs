@@ -350,7 +350,7 @@ public class CPU: IAttachable, IMappedMemory
         var dr = (ControlUnit.IR >> 9) & 0x7;
         ALU.RegisterFile[dr] = (short)EvaluatePCRelativeAddress9();
         
-        CalculateNZP(MemoryControlUnit.MDR);
+        CalculateNZP(ALU.RegisterFile[dr]);
         
         if (logger.IsEnabled(LogLevel.Debug))
         {
@@ -476,11 +476,15 @@ public class CPU: IAttachable, IMappedMemory
         // JSR
         var longFlag = (ControlUnit.IR >> 11) & 0x1;
         var baseR = (ControlUnit.IR >> 6) & 0x7;
+        ALU.RegisterFile[7] = (short)ControlUnit.PC;
         if (longFlag == 1)
         {
             ushort pcOffset11 = (ushort)(ControlUnit.IR & 0x7FF);
-            ALU.RegisterFile[7] = (short)ControlUnit.PC;
-            ControlUnit.PC += pcOffset11;
+            if ((pcOffset11 & 0x400) == 0x400)
+            {
+                pcOffset11 |= 0xF800; // sign extend
+            }
+            ControlUnit.PC = (ushort)(ControlUnit.PC + (short)pcOffset11);
 
             if (logger.IsEnabled(LogLevel.Debug))
             {
