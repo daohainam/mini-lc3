@@ -354,7 +354,7 @@ public class CPU: IAttachable, IMappedMemory
         
         if (logger.IsEnabled(LogLevel.Debug))
         {
-            logger.LogDebug("LEA [x{dr:X}](x{v:X}) into R{dr}", ALU.RegisterFile[dr], MemoryControlUnit.MDR, dr);
+            logger.LogDebug("LEA R{dr} = x{addr:X}", dr, ALU.RegisterFile[dr]);
         }
     }
 
@@ -450,10 +450,6 @@ public class CPU: IAttachable, IMappedMemory
     internal void Trap()
     {
         var trapVector = (ushort)(ControlUnit.IR & 0xFF);
-        ALU.RegisterFile[7] = (short)ControlUnit.PC;
-        MemoryControlUnit.MAR = trapVector;
-        MemoryControlUnit.ReadSignal(false);
-        ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
 
         if (!ControlUnit.Privileged)
         {
@@ -464,6 +460,11 @@ public class CPU: IAttachable, IMappedMemory
 
             ControlUnit.Privileged = true;
         }
+
+        ALU.RegisterFile[7] = (short)ControlUnit.PC;
+        MemoryControlUnit.MAR = trapVector;
+        MemoryControlUnit.ReadSignal(false);
+        ControlUnit.PC = (ushort)MemoryControlUnit.MDR;
 
         if (logger.IsEnabled(LogLevel.Debug))
         {
@@ -476,6 +477,7 @@ public class CPU: IAttachable, IMappedMemory
         // JSR
         var longFlag = (ControlUnit.IR >> 11) & 0x1;
         var baseR = (ControlUnit.IR >> 6) & 0x7;
+        var baseRValue = ALU.RegisterFile[baseR]; // save before R7 is overwritten (handles JSRR R7)
         ALU.RegisterFile[7] = (short)ControlUnit.PC;
         if (longFlag == 1)
         {
@@ -488,16 +490,16 @@ public class CPU: IAttachable, IMappedMemory
 
             if (logger.IsEnabled(LogLevel.Debug))
             {
-                logger.LogDebug("JSR (short) to x{addr:X}", ControlUnit.PC);
+                logger.LogDebug("JSR to x{addr:X}", ControlUnit.PC);
             }
         }
         else
         {
-            ControlUnit.PC = (ushort)ALU.RegisterFile[baseR];
+            ControlUnit.PC = (ushort)baseRValue;
 
             if (logger.IsEnabled(LogLevel.Debug))
             {
-                logger.LogDebug("JSRR (long) to x{addr:X}", ControlUnit.PC);
+                logger.LogDebug("JSRR to x{addr:X}", ControlUnit.PC);
             }
         }
     }

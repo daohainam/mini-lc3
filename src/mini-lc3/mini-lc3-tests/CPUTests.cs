@@ -209,6 +209,21 @@ public class CPUTests
     }
 
     [Fact]
+    public void Execute_JSRR_R7_UsesOriginalR7Value()
+    {
+        // JSRR R7: should jump to the original value of R7, not to the return address
+        _cpu.Boot();
+        _cpu.ControlUnit.PC = 0x3100;
+        _cpu.ALU.RegisterFile[7] = 0x5000; // original R7 value to jump to
+        // JSRR R7 (bit 11 = 0, BaseR = R7 = 0b111)
+        _memory.LoadInstructions([0b_0100_0_00_111_000000], 0x3100); // JSRR R7
+        _cpu.FetchAndExecute();
+
+        _cpu.ControlUnit.PC.Should().Be(0x5000); // should jump to original R7
+        _cpu.ALU.RegisterFile[7].Should().Be(0x3101); // R7 = return address (PC after fetch)
+    }
+
+    [Fact]
     public void TimerInterruptEnable_GetterReturnsCorrectValue()
     {
         _cpu.ControlUnit.MCR = 0x4000;
