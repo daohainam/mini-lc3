@@ -32,8 +32,11 @@ public class LC3Timer : IMappedMemory, IAttachable
                     var currentTime = DateTime.Now;
                     var elapsed = currentTime - lastTime;
                     var elapsedMilliseconds = (ushort)elapsed.TotalMilliseconds;
-                    TMR = (ushort)((elapsedMilliseconds > TMI ? 0x8000 : 0x0000) | TMR);
-                    lastTime = currentTime;
+                    if (elapsedMilliseconds > TMI)
+                    {
+                        TMR = (ushort)(TMR | 0x8000);
+                        lastTime = currentTime;
+                    }
 
                     value = (short)TMR;
                 }

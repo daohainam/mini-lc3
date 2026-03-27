@@ -101,7 +101,7 @@ public class CPU: IAttachable, IMappedMemory
     {
         if (logger.IsEnabled(LogLevel.Debug))
         {
-            logger.LogInformation("INT x{i:x}, current PC: x{pc:x}...", interruptVector, ControlUnit.PC);
+            logger.LogDebug("INT x{i:x}, current PC: x{pc:x}...", interruptVector, ControlUnit.PC);
         }
 
         var originalPSR = ControlUnit.PSR; // backup before changing priviledge bit
