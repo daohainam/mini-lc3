@@ -50,7 +50,7 @@ public class LC3MachineBuilder: ILC3MachineBuilder
 
         if (args.Length > 0)
         {
-            var programName = args.Where(args => !args.StartsWith("--")).FirstOrDefault();
+            var programName = args.Where(arg => !arg.StartsWith("--")).FirstOrDefault();
             if (programName is not null)
             {
                 builder.LoadProgram(programName);

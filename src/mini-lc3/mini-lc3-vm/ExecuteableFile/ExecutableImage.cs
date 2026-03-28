@@ -25,6 +25,6 @@ internal class ExecutableImage: IExecutableImage
 
     public override string ToString()
     {
-        return $"Load Address: {LoadAddress}, Instructions: {string.Join(", ", Instructions.SelectMany(ins => ins.ToString("XXXX")))}";
+        return $"Load Address: {LoadAddress}, Instructions: {string.Join(", ", Instructions.Select(ins => ins.ToString("X4")))}";
     }
 }

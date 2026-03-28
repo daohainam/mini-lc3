@@ -40,6 +40,7 @@ public class MemoryControlUnit: ILC3MemoryControlUnit, IMapableMemory
             }
 
             MDR = 0; // no mapped device, return 0
+            return;
         }
 
         MDR = _memory[MAR];
